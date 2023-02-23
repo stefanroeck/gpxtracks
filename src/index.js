@@ -1,3 +1,6 @@
+import * as L from 'leaflet';
+import * as L2 from 'leaflet-gpx'
+
 const map = L.map('map').setView([49.031654, 8.815047], 10);
 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
