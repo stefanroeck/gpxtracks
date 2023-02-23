@@ -38,6 +38,7 @@ fetch("./gpx/allTracks.txt").then(async response => {
           });
           parsedTrack
             .addTo(map).bindPopup(popupText(parsedTrack));
+          res(parsedTrack);
         });
       })
     ).then(allTargets => {
