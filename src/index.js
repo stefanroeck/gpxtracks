@@ -30,6 +30,12 @@ fetch("./gpx/allTracks.txt").then(async response => {
               startIconUrl: 'pin-icon-start.png',
               endIconUrl: '',
               shadowUrl: ''
+            },
+            polyline_options: {
+              color: 'red',
+              opacity: 0.75,
+              weight: 5,
+              lineCap: 'round',
             }
           }
           );
