@@ -45,7 +45,7 @@ fetch("./gpx/allTracks.txt").then(async response => {
           const track = new L.GPX("./gpx/" + gpx, {
             async: true,
             marker_options: {
-              startIconUrl: 'images/pin-icon-start.png',
+              startIconUrl: '',
               endIconUrl: '',
               shadowUrl: ''
             },
