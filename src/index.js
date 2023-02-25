@@ -19,7 +19,7 @@ const popupText = (track) => {
     `;
 }
 
-const lineStyleNormal={
+const lineStyleNormal = {
   color: 'red',
   opacity: 0.50,
   weight: 5,
@@ -27,7 +27,7 @@ const lineStyleNormal={
 
 }
 
-const lineStyleHover={
+const lineStyleHover = {
   color: 'red',
   opacity: 0.75,
   weight: 10,
@@ -55,18 +55,26 @@ fetch("./gpx/allTracks.txt").then(async response => {
           const mapTrack = await new Promise(res2 => {
             track.on('loaded', e => res2(e.target));
           });
-          mapTrack.bindPopup(popupText(mapTrack), {offset: L.point(40, -20), autoPan: false});
           mapTrack.addTo(map);
-          mapTrack.on('mouseover', function(e) {
-            this.openPopup();
+
+          var popup = undefined;
+          mapTrack.on('mouseover', function (e) {
+            popup = L.popup({ offset: L.point(0, -2) })
+              .setLatLng(e.latlng)
+              .setContent(popupText(mapTrack))
+              .openOn(map);
+
             const layer = e.target;
-            layer.setStyle(lineStyleHover);            
+            layer.setStyle(lineStyleHover);
           });
 
-          mapTrack.on('mouseout', function(e) {
-            this.closePopup();
+          mapTrack.on('mouseout', function (e) {
+            if (popup) {
+              popup.close();
+            }
+
             const layer = e.target;
-            layer.setStyle(lineStyleNormal);            
+            layer.setStyle(lineStyleNormal);
           });
           res(mapTrack);
         });
