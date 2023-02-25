@@ -19,6 +19,21 @@ const popupText = (track) => {
     `;
 }
 
+const lineStyleNormal={
+  color: 'red',
+  opacity: 0.50,
+  weight: 5,
+  lineCap: 'round',
+
+}
+
+const lineStyleHover={
+  color: 'red',
+  opacity: 0.75,
+  weight: 10,
+  lineCap: 'round',
+}
+
 fetch("./gpx/allTracks.txt").then(async response => {
   if (response.ok) {
     const files = await response.text();
@@ -30,28 +45,33 @@ fetch("./gpx/allTracks.txt").then(async response => {
           const track = new L.GPX("./gpx/" + gpx, {
             async: true,
             marker_options: {
-              startIconUrl: 'pin-icon-start.png',
+              startIconUrl: 'images/pin-icon-start.png',
               endIconUrl: '',
               shadowUrl: ''
             },
-            polyline_options: {
-              color: 'red',
-              opacity: 0.75,
-              weight: 5,
-              lineCap: 'round',
-            }
+            polyline_options: lineStyleNormal,
           }
           );
-          const parsedTrack = await new Promise(res2 => {
+          const mapTrack = await new Promise(res2 => {
             track.on('loaded', e => res2(e.target));
           });
-          parsedTrack
-            .addTo(map).bindPopup(popupText(parsedTrack));
-          res(parsedTrack);
+          mapTrack.bindPopup(popupText(mapTrack), {offset: L.point(40, -20), autoPan: false});
+          mapTrack.addTo(map);
+          mapTrack.on('mouseover', function(e) {
+            this.openPopup();
+            const layer = e.target;
+            layer.setStyle(lineStyleHover);            
+          });
+
+          mapTrack.on('mouseout', function(e) {
+            this.closePopup();
+            const layer = e.target;
+            layer.setStyle(lineStyleNormal);            
+          });
+          res(mapTrack);
         });
       })
     ).then(allTargets => {
-      console.log(allTargets);
       const bounds = allTargets.map(t => t.getBounds()).reduce((prev, curr) => {
         return {
           _southWest: {

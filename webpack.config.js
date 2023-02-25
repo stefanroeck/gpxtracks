@@ -16,6 +16,7 @@ module.exports = {
       patterns: [
         { from: 'public/gpx', to: 'gpx' },
         { from: 'public/favicon.ico' },
+        { from: 'public/images', to: 'images' },
       ]
     })
   ]

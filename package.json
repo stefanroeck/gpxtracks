@@ -6,11 +6,13 @@
   "license": "MIT",
   "scripts": {
     "serve": "webpack serve --mode=development",
+    "serve-dist": "serve dist/",
     "build": "webpack --mode=production"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
+    "serve": "^14.2.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1"
   },
