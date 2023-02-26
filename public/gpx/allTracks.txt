@@ -13,3 +13,4 @@
 2022-12-03 HW10, Freudental Hohenklingen_626nodes.gpx
 2022-12-16 Westweg, 2_694nodes.gpx
 2022-12-30 Ostweg, 1_657nodes.gpx
+2023-02-26 Mittelweg, 3_690nodes.gpx
