@@ -34,6 +34,42 @@ const lineStyleHover = {
   lineCap: 'round',
 }
 
+const createPopup = (map, mapTrack, latlng) => {
+  return L.popup({ offset: L.point(0, -2) })
+    .setLatLng(latlng)
+    .setContent(popupText(mapTrack))
+    .openOn(map);
+}
+
+const registerEventsForPopup = (mapTrack, map) => {
+  var popup = undefined;
+  mapTrack.on('mouseover', function (e) {
+    popup = createPopup(map, mapTrack, e.latlng);
+    const layer = e.target;
+    layer.setStyle(lineStyleHover);
+  });
+
+  mapTrack.on('mouseout', function (e) {
+    if (popup) {
+      popup.close();
+    }
+
+    const layer = e.target;
+    layer.setStyle(lineStyleNormal);
+  });
+
+  mapTrack.on('click', function (e) {
+    popup = createPopup(map, mapTrack, e.latlng);
+
+    const layer = e.target;
+    layer.setStyle(lineStyleHover);
+
+    popup.on('remove', function () {
+      layer.setStyle(lineStyleNormal);
+    });
+  });
+}
+
 fetch("./gpx/allTracks.txt").then(async response => {
   if (response.ok) {
     const files = await response.text();
@@ -57,25 +93,8 @@ fetch("./gpx/allTracks.txt").then(async response => {
           });
           mapTrack.addTo(map);
 
-          var popup = undefined;
-          mapTrack.on('mouseover', function (e) {
-            popup = L.popup({ offset: L.point(0, -2) })
-              .setLatLng(e.latlng)
-              .setContent(popupText(mapTrack))
-              .openOn(map);
+          registerEventsForPopup(mapTrack, map);
 
-            const layer = e.target;
-            layer.setStyle(lineStyleHover);
-          });
-
-          mapTrack.on('mouseout', function (e) {
-            if (popup) {
-              popup.close();
-            }
-
-            const layer = e.target;
-            layer.setStyle(lineStyleNormal);
-          });
           res(mapTrack);
         });
       })
