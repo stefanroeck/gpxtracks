@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import * as L2 from 'leaflet-gpx'
 import 'leaflet/dist/leaflet.css';
+import { getWeather } from './weather';
 
 const map = L.map('map').setView([49.031654, 8.815047], 10);
 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -11,12 +12,53 @@ const formatDate = (millis) => {
   return new Date(millis).toISOString().slice(11, 19);
 }
 
-const popupText = (track) => {
+/**
+ * @param {string} weatherCode, see https://open-meteo.com/en/docs#api-documentation
+ * @returns {string} Weather Symbol
+ */
+const weatherCodeToSymbol = (weatherCode) => {
+  switch (weatherCode) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return '🌤';
+    case 45:
+    case 48:
+    case 51:
+    case 53:
+    case 55:
+      return '🌥';
+    case 61:
+    case 63:
+    case 65:
+    case 66:
+    case 67:
+      return '🌧';
+    case 71:
+    case 73:
+    case 75:
+    case 77:
+    case 85:
+    case 86:
+      return '🌨';
+    case 95:
+    case 96:
+    case 99:
+      return '🌩';
+    default:
+      console.log("Unknown weatherCode", weatherCode);
+      return '?';
+  }
+}
+
+const popupText = (track, weather) => {
   return `
     <h4>${track.get_name()}</h4>
     <div class="row"><span class="icon">📅</span>${track.get_start_time().toLocaleDateString()}</div>
     <div class="row"><span class="icon">🏔</span>${Math.round(track.get_distance() / 1000)} km, ${track.get_elevation_gain()} hm</div>
     <div class="row"><span class="icon">🕑</span>${formatDate(track.get_total_time())}</div>
+    <div class="row"><span class="icon">${weatherCodeToSymbol(weather.weatherCode)}</span>${weather.temperature}</div>
     `;
 }
 
@@ -35,19 +77,23 @@ const lineStyleHover = {
   lineCap: 'round',
 }
 
-const createPopup = (map, mapTrack, latlng) => {
+const createPopup = async (map, mapTrack, latlng) => {
+  const day = mapTrack._info.duration.start.toISOString().substring(0, 10);
+  const position = mapTrack.getBounds().getCenter();
+  const weather = await getWeather(position.lat, position.lng, day);
   return L.popup({ offset: L.point(0, -2) })
     .setLatLng(latlng)
-    .setContent(popupText(mapTrack))
+    .setContent(popupText(mapTrack, weather))
     .openOn(map);
 }
 
 const registerEventsForPopup = (mapTrack, map) => {
   var popup = undefined;
-  mapTrack.on('mouseover', function (e) {
-    popup = createPopup(map, mapTrack, e.latlng);
+  mapTrack.on('mouseover', async function (e) {
     const layer = e.target;
     layer.setStyle(lineStyleHover);
+
+    popup = await createPopup(map, mapTrack, e.latlng);
   });
 
   mapTrack.on('mouseout', function (e) {
@@ -59,12 +105,11 @@ const registerEventsForPopup = (mapTrack, map) => {
     layer.setStyle(lineStyleNormal);
   });
 
-  mapTrack.on('click', function (e) {
-    popup = createPopup(map, mapTrack, e.latlng);
-
+  mapTrack.on('click', async function (e) {
     const layer = e.target;
     layer.setStyle(lineStyleHover);
 
+    popup = await createPopup(map, mapTrack, e.latlng);
     popup.on('remove', function () {
       layer.setStyle(lineStyleNormal);
     });
