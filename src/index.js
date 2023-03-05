@@ -21,16 +21,16 @@ const popupText = (track) => {
 
 const lineStyleNormal = {
   color: 'red',
-  opacity: 0.50,
-  weight: 5,
+  opacity: 0.8,
+  weight: 4,
   lineCap: 'round',
 
 }
 
 const lineStyleHover = {
   color: 'red',
-  opacity: 0.75,
-  weight: 10,
+  opacity: 0.65,
+  weight: 8,
   lineCap: 'round',
 }
 
