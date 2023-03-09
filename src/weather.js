@@ -37,3 +37,43 @@ export const getWeather = (lat, lng, day) => {
             });
     }
 }
+
+/**
+ * @param {string} weatherCode, see https://open-meteo.com/en/docs#api-documentation
+ * @returns {string} Weather Symbol
+ */
+export const weatherCodeToSymbol = (weatherCode) => {
+    switch (weatherCode) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            return '🌤';
+        case 45:
+        case 48:
+        case 51:
+        case 53:
+        case 55:
+            return '🌥';
+        case 61:
+        case 63:
+        case 65:
+        case 66:
+        case 67:
+            return '🌧';
+        case 71:
+        case 73:
+        case 75:
+        case 77:
+        case 85:
+        case 86:
+            return '🌨';
+        case 95:
+        case 96:
+        case 99:
+            return '🌩';
+        default:
+            console.log("Unknown weatherCode", weatherCode);
+            return '?';
+    }
+}

@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "leaflet": "^1.9.3",
-    "leaflet-gpx": "^1.7.0"
+    "leaflet-gpx": "^1.7.0",
+    "leaflet-ui": "^0.6.0",
+    "url": "^0.11.0"
   }
 }

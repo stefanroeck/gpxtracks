@@ -1,55 +1,63 @@
 import * as L from 'leaflet';
-import * as L2 from 'leaflet-gpx'
+import 'leaflet-gpx'
 import 'leaflet/dist/leaflet.css';
-import { getWeather } from './weather';
+import 'leaflet-ui/dist/leaflet-ui-src';
+import 'leaflet-ui/dist/leaflet-ui.css';
+import { getWeather, weatherCodeToSymbol } from './weather';
 
-const map = L.map('map').setView([49.031654, 8.815047], 10);
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
-}).addTo(map);
+const map = L.map('map', {
+  mapTypeId: 'streets',
+  mapTypeIds: ['streets', 'satellite', 'topo', 'dark'],
+  pegmanControl: false,
+  editInOSMControl: false,
+  includeLeafletUICSS: false,
+  includeLeafletCSS: false,
+  rotateControl: false,
+  searchControl: false,
+  locateControl: false,
+  minimapControl: false,
+  mapTypes: {
+    streets: {
+      name: 'Map',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      options: {
+        maxZoom: 24,
+        maxNativeZoom: 19,
+        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      },
+    },
+    topo: {
+      name: 'Topo',
+      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      options: {
+        maxZoom: 24,
+        maxNativeZoom: 17,
+        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+      },
+    },
+    satellite: {
+      name: 'Satellite',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      options: {
+        maxZoom: 24,
+        maxNativeZoom: 18,
+        attribution: 'Map data: &copy; <a href="http://www.esri.com/">Esri</a> &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      },
+    } ,
+    dark: {
+      name: 'Dark',
+      url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', 
+      options: {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      },
+    },
+   },
+
+}).setView([49.031654, 8.815047], 10);
 
 const formatDate = (millis) => {
   return new Date(millis).toISOString().slice(11, 19);
-}
-
-/**
- * @param {string} weatherCode, see https://open-meteo.com/en/docs#api-documentation
- * @returns {string} Weather Symbol
- */
-const weatherCodeToSymbol = (weatherCode) => {
-  switch (weatherCode) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return '🌤';
-    case 45:
-    case 48:
-    case 51:
-    case 53:
-    case 55:
-      return '🌥';
-    case 61:
-    case 63:
-    case 65:
-    case 66:
-    case 67:
-      return '🌧';
-    case 71:
-    case 73:
-    case 75:
-    case 77:
-    case 85:
-    case 86:
-      return '🌨';
-    case 95:
-    case 96:
-    case 99:
-      return '🌩';
-    default:
-      console.log("Unknown weatherCode", weatherCode);
-      return '?';
-  }
 }
 
 const popupText = (track, weather) => {
