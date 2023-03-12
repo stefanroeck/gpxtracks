@@ -25,11 +25,12 @@ export const getWeather = (lat, lng, day) => {
                     });
                 }
                 const weatherData = await response.json();
+                const temperature = weatherData.daily.temperature_2m_max[0] !== null ? weatherData.daily.temperature_2m_max[0] + weatherData.daily_units.temperature_2m_max : "";
                 const result = {
                     lat,
                     lng,
                     day,
-                    temperature: weatherData.daily.temperature_2m_max[0] + weatherData.daily_units.temperature_2m_max,
+                    temperature,
                     weatherCode: weatherData.daily.weathercode[0],
                 };
                 weatherDataCache.push(result);
