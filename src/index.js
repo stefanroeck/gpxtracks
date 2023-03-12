@@ -10,6 +10,7 @@ const map = L.map('map', {
   mapTypeIds: ['streets', 'satellite', 'topo', 'dark'],
   pegmanControl: false,
   editInOSMControl: false,
+  gestureHandling: false,
   includeLeafletUICSS: false,
   includeLeafletCSS: false,
   rotateControl: false,
