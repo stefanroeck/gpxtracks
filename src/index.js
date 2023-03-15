@@ -3,59 +3,14 @@ import 'leaflet-gpx'
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-ui/dist/leaflet-ui-src';
 import 'leaflet-ui/dist/leaflet-ui.css';
+
 import { getWeather, weatherCodeToSymbol } from './weather';
+import { initElevation, showElevation } from './elevation';
+import { mapConfig } from './mapconfig';
 
-const map = L.map('map', {
-  mapTypeId: 'streets',
-  mapTypeIds: ['streets', 'satellite', 'topo', 'dark'],
-  pegmanControl: false,
-  editInOSMControl: false,
-  gestureHandling: false,
-  includeLeafletUICSS: false,
-  includeLeafletCSS: false,
-  rotateControl: false,
-  searchControl: false,
-  locateControl: false,
-  minimapControl: false,
-  mapTypes: {
-    streets: {
-      name: 'Map',
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      options: {
-        maxZoom: 24,
-        maxNativeZoom: 19,
-        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      },
-    },
-    topo: {
-      name: 'Topo',
-      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      options: {
-        maxZoom: 24,
-        maxNativeZoom: 17,
-        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-      },
-    },
-    satellite: {
-      name: 'Satellite',
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      options: {
-        maxZoom: 24,
-        maxNativeZoom: 18,
-        attribution: 'Map data: &copy; <a href="http://www.esri.com/">Esri</a> &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-      },
-    } ,
-    dark: {
-      name: 'Dark',
-      url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', 
-      options: {
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-      },
-    },
-   },
+const map = L.map('map', mapConfig).setView([49.031654, 8.815047], 10);
 
-}).setView([49.031654, 8.815047], 10);
+initElevation(map);
 
 const formatDate = (millis) => {
   return new Date(millis).toISOString().slice(11, 19);
@@ -122,6 +77,8 @@ const registerEventsForPopup = (mapTrack, map) => {
     popup.on('remove', function () {
       layer.setStyle(lineStyleNormal);
     });
+
+    showElevation();
   });
 }
 
