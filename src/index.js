@@ -77,8 +77,7 @@ const registerEventsForPopup = (mapTrack, map) => {
     popup.on('remove', function () {
       layer.setStyle(lineStyleNormal);
     });
-
-    showElevation();
+    showElevation(mapTrack.get_elevation_data(), mapTrack.get_name());
   });
 }
 

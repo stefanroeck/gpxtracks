@@ -19,6 +19,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "echarts": "^5.4.1",
     "leaflet": "^1.9.3",
     "leaflet-gpx": "^1.7.0",
     "leaflet-ui": "^0.6.0",
