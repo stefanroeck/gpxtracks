@@ -7,12 +7,13 @@
   "scripts": {
     "serve": "webpack serve --mode=development",
     "serve-dist": "serve dist/",
-    "build": "webpack --mode=production"
+    "build": "rimraf dist/ && webpack --mode=production"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.0",
+    "rimraf": "^4.4.0",
     "serve": "^14.2.0",
     "style-loader": "^3.3.1",
     "webpack-cli": "^5.0.1",
@@ -22,7 +23,6 @@
     "echarts": "^5.4.1",
     "leaflet": "^1.9.3",
     "leaflet-gpx": "^1.7.0",
-    "leaflet-ui": "^0.6.0",
     "url": "^0.11.0"
   }
 }

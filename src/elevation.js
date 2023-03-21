@@ -85,7 +85,7 @@ const chartOptions = (data, name) => {
   }
 };
 
-export const initElevation = (map) => {
+export const initElevation = () => {
   closeBtn.addEventListener("click", () => {
     elevationPanel.style.display = 'none';
   });

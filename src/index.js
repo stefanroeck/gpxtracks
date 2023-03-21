@@ -1,16 +1,34 @@
 import * as L from 'leaflet';
 import 'leaflet-gpx'
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-ui/dist/leaflet-ui-src';
-import 'leaflet-ui/dist/leaflet-ui.css';
+import './leafletStyles.css';
 
 import { getWeather, weatherCodeToSymbol } from './weather';
 import { initElevation, showElevation } from './elevation';
-import { mapConfig } from './mapconfig';
+import { controlLayersInline } from './controlLayersInline';
+import { baseMaps } from './mapconfig';
 
-const map = L.map('map', mapConfig).setView([49.031654, 8.815047], 10);
+controlLayersInline();
 
-initElevation(map);
+const maps = baseMaps();
+const layers = Object.keys(maps).map(k => maps[k]);
+
+const map = L.map('map', {
+  layers: [layers[0]], // select first as default layer
+  zoomControl: false,
+  attributionControl: true,
+}).setView([49.031654, 8.815047], 10);
+
+L.control.layers(maps, null, {
+  inline: true,
+  position: 'topright',
+}).addTo(map);
+
+L.control.zoom({
+  position: 'bottomright'
+}).addTo(map);
+
+initElevation();
 
 const formatDate = (millis) => {
   return new Date(millis).toISOString().slice(11, 19);

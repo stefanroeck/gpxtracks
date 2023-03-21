@@ -1,0 +1,33 @@
+.leaflet-popup-content-wrapper .row {
+    line-height: 20px;
+}
+
+.leaflet-popup-content-wrapper .icon {
+    display: inline-block;
+    width: 25px;
+}
+
+.leaflet-control-layers-selector{
+    display: none;
+}
+
+.leaflet-control-layers-base > label > span {
+    display: inline-block;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.leaflet-control-layers label {
+    display: inline-block;
+    border-right: 1px solid lightgray;
+    cursor: pointer;
+}
+
+.leaflet-control-layers label:hover {
+    background-color: lightgray;
+}
+
+.leaflet-control-layers-expanded {
+    padding: 0;
+}
