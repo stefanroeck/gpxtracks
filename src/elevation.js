@@ -86,9 +86,7 @@ const chartOptions = (data, name) => {
 };
 
 export const initElevation = () => {
-  closeBtn.addEventListener("click", () => {
-    elevationPanel.style.display = 'none';
-  });
+  closeBtn.addEventListener("click", hideElevation);
 }
 
 /**
@@ -104,5 +102,9 @@ export const showElevation = (elevationData, name) => {
     });
   }
   chart.setOption(chartOptions(elevationData, name));
+}
+
+export const hideElevation = () => {
+  elevationPanel.style.display = 'none';
 }
 

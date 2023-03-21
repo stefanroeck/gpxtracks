@@ -4,9 +4,10 @@ import 'leaflet/dist/leaflet.css';
 import './leafletStyles.css';
 
 import { getWeather, weatherCodeToSymbol } from './weather';
-import { initElevation, showElevation } from './elevation';
+import { initElevation, showElevation, hideElevation } from './elevation';
 import { controlLayersInline } from './controlLayersInline';
 import { baseMaps } from './mapconfig';
+import { renderRouteSelector } from './routeSelector';
 
 controlLayersInline();
 
@@ -20,7 +21,6 @@ const map = L.map('map', {
 }).setView([49.031654, 8.815047], 10);
 
 L.control.layers(maps, null, {
-  inline: true,
   position: 'topright',
 }).addTo(map);
 
@@ -36,7 +36,7 @@ const formatDate = (millis) => {
 
 const popupText = (track, weather) => {
   return `
-    <h4>${track.get_name()}</h4>
+    <h5>${track.get_name()}</h4>
     <div class="row"><span class="icon">📅</span>${track.get_start_time().toLocaleDateString()}</div>
     <div class="row"><span class="icon">🏔</span>${Math.round(track.get_distance() / 1000)} km, ${track.get_elevation_gain()} hm</div>
     <div class="row"><span class="icon">🕑</span>${formatDate(track.get_total_time())}</div>
@@ -95,40 +95,79 @@ const registerEventsForPopup = (mapTrack, map) => {
     popup.on('remove', function () {
       layer.setStyle(lineStyleNormal);
     });
-    showElevation(mapTrack.get_elevation_data(), mapTrack.get_name());
+    showElevationPanel(mapTrack);
   });
+}
+
+const showElevationPanel = (mapTrack) => {
+  showElevation(mapTrack.get_elevation_data(), mapTrack.get_name());
+}
+
+const loadRoute = async (route) => {
+  const track = new L.GPX("./gpx/" + route, {
+    async: true,
+    marker_options: {
+      startIconUrl: '',
+      endIconUrl: '',
+      shadowUrl: ''
+    },
+    polyline_options: lineStyleNormal,
+  }
+  );
+  const mapTrack = await new Promise(res => {
+    track.on('loaded', e => res(e.target));
+  });
+  return mapTrack;
+}
+
+const loadAllRoutes = async (gpxFiles) => {
+  return await Promise.all(
+    gpxFiles.map(gpx => {
+      return new Promise(async (res) => {
+        const mapTrack = await loadRoute(gpx);
+
+        registerEventsForPopup(mapTrack, map);
+        res({mapTrack, gpx});
+      });
+    })
+  );
 }
 
 fetch("./gpx/allTracks.txt").then(async response => {
   if (response.ok) {
     const files = await response.text();
     const gpxFiles = files.split("\n").filter(l => l.trim().length > 0);
+    
+    const allMapLayers = await loadAllRoutes(gpxFiles);
 
-    Promise.all(
-      gpxFiles.map(gpx => {
-        return new Promise(async (res) => {
-          const track = new L.GPX("./gpx/" + gpx, {
-            async: true,
-            marker_options: {
-              startIconUrl: '',
-              endIconUrl: '',
-              shadowUrl: ''
-            },
-            polyline_options: lineStyleNormal,
+    const onRouteSelected = async (route) => {
+      if (route ==="Show all routes"){
+        hideElevation();
+        showAllTracks();
+      } else {
+        let shownLayer;
+        allMapLayers.forEach(l => {
+          if (l.gpx !== route) {
+            map.removeLayer(l.mapTrack)
+          } else {
+            shownLayer = l.mapTrack;
+            if (!map.hasLayer(l.mapTrack)) {
+              map.addLayer(l.mapTrack);
+            }
           }
-          );
-          const mapTrack = await new Promise(res2 => {
-            track.on('loaded', e => res2(e.target));
-          });
-          mapTrack.addTo(map);
-
-          registerEventsForPopup(mapTrack, map);
-
-          res(mapTrack);
         });
-      })
-    ).then(allTargets => {
-      const bounds = allTargets.map(t => t.getBounds()).reduce((prev, curr) => {
+        if (shownLayer) {
+          map.fitBounds(shownLayer.getBounds());
+          showElevationPanel(shownLayer);
+        }
+      }
+    };
+
+    const showAllTracks = () => {
+      const allTracks = allMapLayers.map(t => t.mapTrack);
+      allTracks.forEach(t => map.addLayer(t));  
+  
+      const bounds = allTracks.map(t => t.getBounds()).reduce((prev, curr) => {
         return {
           _southWest: {
             lat: Math.min(prev._southWest.lat, curr._southWest.lat),
@@ -139,9 +178,14 @@ fetch("./gpx/allTracks.txt").then(async response => {
             lng: Math.max(prev._northEast.lng, curr._northEast.lng),
           }
         }
-      }, allTargets[0].getBounds());
-      map.fitBounds([[bounds._southWest.lat, bounds._southWest.lng], [bounds._northEast.lat, bounds._northEast.lng]]);
-    });
+      }, allTracks[0].getBounds());
+  
+      map.fitBounds([[bounds._southWest.lat, bounds._southWest.lng], [bounds._northEast.lat, bounds._northEast.lng]]);  
+    }
+
+    renderRouteSelector(map, gpxFiles, onRouteSelected);
+
+    showAllTracks();
 
   }
 });
