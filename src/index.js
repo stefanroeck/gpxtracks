@@ -25,7 +25,7 @@ L.control.layers(maps, null, {
 }).addTo(map);
 
 L.control.zoom({
-  position: 'bottomright'
+  position: 'topleft'
 }).addTo(map);
 
 initElevation();
@@ -61,8 +61,7 @@ const lineStyleHover = {
 
 const createPopup = async (map, mapTrack, latlng) => {
   const day = mapTrack._info.duration.start.toISOString().substring(0, 10);
-  const position = mapTrack.getBounds().getCenter();
-  const weather = await getWeather(position.lat, position.lng, day);
+  const weather = await getWeather(latlng.lat, latlng.lng, day);
   return L.popup({ offset: L.point(0, -2) })
     .setLatLng(latlng)
     .setContent(popupText(mapTrack, weather))
@@ -100,7 +99,7 @@ const registerEventsForPopup = (mapTrack, map) => {
 }
 
 const showElevationPanel = (mapTrack) => {
-  showElevation(mapTrack.get_elevation_data(), mapTrack.get_name());
+  showElevation(mapTrack.get_elevation_data(), `↗ ${mapTrack.get_elevation_gain()}m ↘ ${mapTrack.get_elevation_loss()}m`);
 }
 
 const loadRoute = async (route) => {
@@ -141,7 +140,7 @@ fetch("./gpx/allTracks.txt").then(async response => {
     const allMapLayers = await loadAllRoutes(gpxFiles);
 
     const onRouteSelected = async (route) => {
-      if (route ==="Show all routes"){
+      if (route === "Show all routes"){
         hideElevation();
         showAllTracks();
       } else {
