@@ -1,6 +1,5 @@
 import * as echarts from 'echarts';
 
-const closeBtn = document.querySelector('#elevation-close');
 const elevationPanel = document.querySelector('#elevation-div');
 const elevationChart = document.querySelector('#elevation-chart');
 var chart;
@@ -84,10 +83,6 @@ const chartOptions = (data, name) => {
     ]
   }
 };
-
-export const initElevation = () => {
-  closeBtn.addEventListener("click", hideElevation);
-}
 
 /**
  * @param {Array.<[number, number, string, string>} elevationData 

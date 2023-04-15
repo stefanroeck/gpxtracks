@@ -31,3 +31,7 @@
 .leaflet-control-layers-expanded {
     padding: 0;
 }
+
+.leaflet-touch .leaflet-control-attribution, .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar {
+    box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
+}

@@ -20,16 +20,31 @@
             position: absolute;
             height: 30%;
             bottom: 0;
-            left: 0;
-            right: 0;
+            left: 60px;
+            right: 60px;
             background-color: #ffffffd4;
             z-index: 1000;
             display: none;
+            border-radius: 10px 10px 0 0;
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
+            border-bottom: 0 solid white;
         }
 
         #elevation-chart {
             height: 100%;
             width: 100%;
+        }
+
+        .route-selector {
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
+        }
+
+        .route-info.leaflet-popup-content-wrapper {
+            border-radius: 5px;
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
         }
 
     </style>
@@ -39,14 +54,6 @@
     <div id="map"></div>
     <div id="elevation-div">
         <div id="elevation-chart"></div>
-        <div class="leaflet-top leaflet-right">
-            <div class="leaflet-control-zoom leaflet-bar leaflet-control" id="elevation-close">
-                <a class="leaflet-control-zoom-in" href="#" title="Close" role="button" aria-label="Close"
-                    aria-disabled="false">
-                    <span aria-hidden="true">x</span>
-                </a>
-            </div>
-        </div>
     </div>
 </body>
 
