@@ -57,6 +57,14 @@ const onRouteSelected = (route) => {
   }
 };
 
+map.on('click', (e) => {
+  if (e.originalEvent.target.tagName === "DIV") {
+    // clicked somewhere on the map but not on a SVG PATH
+    hideElevation();
+    routeInfoBox.hideRouteInfo();  
+  }
+});
+
 const routeSelector = renderRouteSelector(map, onRouteSelected);
 
 const lineStyleNormal = {
