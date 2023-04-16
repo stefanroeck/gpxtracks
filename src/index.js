@@ -69,15 +69,15 @@ const routeSelector = renderRouteSelector(map, onRouteSelected);
 
 const lineStyleNormal = {
   color: 'red',
-  opacity: 0.8,
+  opacity: 0.7,
   weight: 4,
   lineCap: 'round',
 }
 
 const lineStyleHover = {
   color: 'red',
-  opacity: 0.65,
-  weight: 8,
+  opacity: 1.0,
+  weight: 7,
   lineCap: 'round',
 }
 
