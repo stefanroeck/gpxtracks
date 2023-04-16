@@ -24,10 +24,6 @@ L.control.layers(maps, null, {
   position: 'topright',
 }).addTo(map);
 
-L.control.zoom({
-  position: 'bottomleft'
-}).addTo(map);
-
 const allMapLayers = [];
 
 const routeInfoBox = renderRouteInfo(map);
@@ -66,6 +62,11 @@ map.on('click', (e) => {
 });
 
 const routeSelector = renderRouteSelector(map, onRouteSelected);
+
+L.control.zoom({
+  position: 'topleft'
+}).addTo(map);
+
 
 const lineStyleNormal = {
   color: 'red',
