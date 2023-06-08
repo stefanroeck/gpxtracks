@@ -33,6 +33,7 @@ const onRouteSelected = (route) => {
     hideElevation();
     routeInfoBox.hideRouteInfo();
     showAllTracks();
+    window.history.pushState(undefined, undefined, "?");
   } else {
     let shownLayer;
     allMapLayers.forEach(l => {
@@ -49,6 +50,7 @@ const onRouteSelected = (route) => {
       map.fitBounds(shownLayer.getBounds());
       showElevationPanel(shownLayer);
       routeInfoBox.showRouteInfo(shownLayer);
+      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(shownLayer.get_name()));
     }
   }
 };
@@ -154,6 +156,15 @@ const loadAllRoutes = async (gpxFiles) => {
   );
 }
 
+const findRouteBasedOnQueryString = (queryString, loadedMaps) => {
+  const trackNameArray = queryString.includes("track=") ? queryString.split("="): [];
+  const trackName = trackNameArray.length === 2 ? decodeURIComponent(trackNameArray[1]) : undefined;
+  if (trackName) {
+    const route = loadedMaps.find(r => r.mapTrack.get_name() === trackName);
+    return route;
+  }
+}
+
 fetch("./gpx/allTracks.txt").then(async response => {
   if (response.ok) {
     const files = await response.text();
@@ -167,7 +178,14 @@ fetch("./gpx/allTracks.txt").then(async response => {
     });
 
     routeSelector.renderRoutes(loadedMaps);
-    showAllTracks();
+
+    const preselectedRoute = findRouteBasedOnQueryString(window.location.search, loadedMaps);
+    if (preselectedRoute) {
+      onRouteSelected(preselectedRoute);
+      routeSelector.selectRoute(preselectedRoute);
+    } else {
+      showAllTracks();
+    }
   }
 });
 

@@ -34,6 +34,10 @@ export const renderRouteSelector = (map, routeSelected) => {
             });
         },
 
+        selectRoute: function(route) {
+            this.selector.value = route.gpx;
+        },
+
         _addOption: function(value, label){
             const option = L.DomUtil.create('option');
             option.innerText = label;
