@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
+require('dotenv').config({ path: './.env' });
 
 module.exports = {
   entry: './src/index.js',
@@ -26,6 +28,9 @@ module.exports = {
         { from: 'public/favicon.ico' },
 //        { from: 'public/images', to: 'images' },
       ]
-    })
+    }),
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify(process.env),
+    }),    
   ]
 };
