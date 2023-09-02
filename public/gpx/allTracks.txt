@@ -18,3 +18,6 @@
 2023-04-14 Murgleiter, 3.gpx
 2023-06-08 Mittelweg, 4_716nodes.gpx
 2023-08-05 Ostweg 2.Etappe.gpx
+2023-08-30 HW1, Etappe 10.gpx
+2023-08-31 HW1, Etappe 11.gpx
+2023-09-01 HW1, Etappe 12.gpx
