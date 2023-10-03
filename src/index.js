@@ -93,6 +93,7 @@ const registerEventsForTrack = (mapTrack) => {
   mapTrack.on("click", function (e) {
     const layer = e.target;
     layer.setStyle(lineStyleHover);
+    layer.bringToFront();
     showElevationPanel(mapTrack);
     routeInfoBox.showRouteInfo(mapTrack);
   });
