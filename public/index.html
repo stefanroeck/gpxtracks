@@ -1,71 +1,71 @@
 <!DOCTYPE html>
-
-<head>
-    <meta charset='utf-8'>
+<html>
+  <head>
+    <meta charset="utf-8" />
     <title>Meine Wanderungen</title>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
     <style>
-        #map {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: black;
-        }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: black;
+      }
 
-        #elevation-div {
-            position: absolute;
-            height: 30%;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #ffffffd4;
-            z-index: 1000;
-            display: none;
-            border-radius: 0;
-            border-top: 1px solid lightgrey;
-            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
-        }
+      #elevation-div {
+        position: absolute;
+        height: 30%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #ffffffd4;
+        z-index: 1000;
+        display: none;
+        border-radius: 0;
+        border-top: 1px solid lightgrey;
+        box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+      }
 
-        #elevation-chart {
-            height: 100%;
-            width: 100%;
-        }
+      #elevation-chart {
+        height: 100%;
+        width: 100%;
+      }
 
-        .route-selector {
-            border: 1px solid lightgrey;
-            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
-        }
+      .route-selector {
+        border: 1px solid lightgrey;
+        box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+      }
 
-        .route-info {
-            max-width: 80%;
-        }
-        
-        .route-info.leaflet-popup-content-wrapper {
-            border-radius: 5px;
-            border: 1px solid lightgrey;
-            box-shadow: 0px 0px 6px rgba(0,0,0,0.4);
-        }
-        
-        .gpxTrack {
-            filter: 
-                drop-shadow(2px 0 0 rgba(255, 255, 255, 0.7)) 
-                drop-shadow(-2px 0 0 rgba(255, 255, 255, 0.7)) 
-                drop-shadow(0 2px 0 rgba(255, 255, 255, 0.7)) 
-                drop-shadow(0 -2px 0 rgba(255, 255, 255, 0.7));
-        }
+      .route-info {
+        max-width: 80%;
+      }
 
+      .route-info.leaflet-popup-content-wrapper {
+        border-radius: 5px;
+        border: 1px solid lightgrey;
+        box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      .gpxTrack {
+        filter: drop-shadow(2px 0 0 rgba(255, 255, 255, 0.7)) drop-shadow(-2px 0 0 rgba(255, 255, 255, 0.7)) drop-shadow(0 2px 0 rgba(255, 255, 255, 0.7))
+          drop-shadow(0 -2px 0 rgba(255, 255, 255, 0.7));
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="map"></div>
     <div id="elevation-div">
-        <div id="elevation-chart"></div>
+      <div id="elevation-chart"></div>
     </div>
-</body>
-
+  </body>
 </html>
