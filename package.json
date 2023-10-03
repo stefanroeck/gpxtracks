@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "echarts": "^5.4.1",
-    "leaflet": "^1.9.3",
+    "leaflet": "^1.9.4",
     "leaflet-gpx": "^1.7.0",
     "url": "^0.11.0"
   }
