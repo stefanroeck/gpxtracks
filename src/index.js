@@ -74,7 +74,7 @@ L.control
   .addTo(map);
 
 const lineStyleNormal = {
-  color: "blue",
+  color: "#086eb7",
   opacity: 1.0,
   weight: 5,
   lineCap: "round",
@@ -82,11 +82,7 @@ const lineStyleNormal = {
 };
 
 const lineStyleHover = {
-  color: "red",
-  opacity: 1.0,
-  weight: 7,
-  lineCap: "round",
-  className: "gpxTrack",
+  color: "#ef7c0a",
 };
 
 const registerEventsForTrack = (mapTrack) => {
