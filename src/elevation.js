@@ -63,18 +63,19 @@ const chartOptions = (data, name) => {
         type: "line",
         symbol: "none",
         sampling: "lttb",
-        itemStyle: {
-          color: "rgb(255, 70, 131)",
+        smooth: 1,
+        lineStyle: {
+          color: "#0d3c6c",
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             {
               offset: 0,
-              color: "rgb(255, 158, 68)",
+              color: "#086eb7",
             },
             {
               offset: 1,
-              color: "rgb(255, 70, 131)",
+              color: "#084e95",
             },
           ]),
         },
