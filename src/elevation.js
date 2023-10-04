@@ -1,7 +1,7 @@
-import * as echarts from 'echarts';
+import * as echarts from "echarts";
 
-const elevationPanel = document.querySelector('#elevation-div');
-const elevationChart = document.querySelector('#elevation-chart');
+const elevationPanel = document.querySelector("#elevation-div");
+const elevationChart = document.querySelector("#elevation-chart");
 var chart;
 
 const chartOptions = (data, name) => {
@@ -9,27 +9,27 @@ const chartOptions = (data, name) => {
     title: {
       subtext: name,
       subtextStyle: {
-        fontWeight: 'bold',
+        fontWeight: "bold",
       },
       right: 60,
     },
     tooltip: {
-      trigger: 'axis',
+      trigger: "axis",
       position: function (pt) {
-        return [pt[0] + 20, '10%'];
+        return [pt[0] + 20, "10%"];
       },
       formatter: function (params, ticket) {
         return `${params[0].value[2]}`;
       },
       axisPointer: {
-        type: 'line',
+        type: "line",
         lineStyle: {
           width: 1,
-          type: 'solid',
-          color: 'black',
-        }
-      }
-    },    
+          type: "solid",
+          color: "black",
+        },
+      },
+    },
     toolbox: {
       show: false,
     },
@@ -40,8 +40,8 @@ const chartOptions = (data, name) => {
       right: 40,
     },
     xAxis: {
-      name: 'km',
-      type: 'value',
+      name: "km",
+      type: "value",
       axisLabel: {
         formatter: function (value) {
           return `${value}km`;
@@ -50,56 +50,55 @@ const chartOptions = (data, name) => {
         hideOverlap: true,
       },
       interval: 2,
-      max: 'dataMax',
-  },
+      max: "dataMax",
+    },
     yAxis: {
-      name: 'hm',
+      name: "hm",
       nameGap: 5,
-      type: 'value',
+      type: "value",
     },
     series: [
       {
-        name: 'hm',
-        type: 'line',
-        symbol: 'none',
-        sampling: 'lttb',
+        name: "hm",
+        type: "line",
+        symbol: "none",
+        sampling: "lttb",
         itemStyle: {
-          color: 'rgb(255, 70, 131)'
+          color: "rgb(255, 70, 131)",
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             {
               offset: 0,
-              color: 'rgb(255, 158, 68)'
+              color: "rgb(255, 158, 68)",
             },
             {
               offset: 1,
-              color: 'rgb(255, 70, 131)'
-            }
-          ])
+              color: "rgb(255, 70, 131)",
+            },
+          ]),
         },
         data,
-      }
-    ]
-  }
+      },
+    ],
+  };
 };
 
 /**
- * @param {Array.<[number, number, string, string>} elevationData 
+ * @param {Array.<[number, number, string, string>} elevationData
  * @param {string} name
  */
 export const showElevation = (elevationData, name) => {
-  elevationPanel.style.display = 'block';
+  elevationPanel.style.display = "block";
   if (!chart) {
     chart = echarts.init(elevationChart);
-    window.addEventListener('resize', function() {
+    window.addEventListener("resize", function () {
       chart.resize();
     });
   }
   chart.setOption(chartOptions(elevationData, name));
-}
+};
 
 export const hideElevation = () => {
-  elevationPanel.style.display = 'none';
-}
-
+  elevationPanel.style.display = "none";
+};
