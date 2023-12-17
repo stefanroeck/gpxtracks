@@ -22,3 +22,4 @@
 2023-09-01 HW1, Etappe 12.gpx
 2023-10-03 Westweg, 3. Etappe.gpx
 2023-11-03 Nordrandweg Schwarzwald, 1. Etappe.gpx
+2023-12-17 Ostweg, 4. Etappe.gpx
