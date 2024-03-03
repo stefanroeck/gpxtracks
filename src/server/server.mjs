@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { getTracks } from "./dropbox.mjs";
+import { downloadTrack, getTracks } from "./dropbox.mjs";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -19,6 +19,17 @@ app.get("/api/tracks", async (req, res) => {
   getTracks()
     .then((tracks) => {
       res.send(tracks);
+    })
+    .catch((error) => {
+      res.send({ error: error.message });
+    });
+});
+
+app.get("/api/track/:id", async (req, res) => {
+  console.log("Returning track with id: " + req.params.id);
+  downloadTrack(req.params.id)
+    .then((track) => {
+      res.send(track);
     })
     .catch((error) => {
       res.send({ error: error.message });

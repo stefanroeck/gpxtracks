@@ -1,14 +1,21 @@
 import fetch from "node-fetch";
+import fs from "fs";
+import { finished } from "stream/promises";
+import { Readable } from "stream";
 
 const SEARCH_TAG = "#longdistancewalk";
+
+const defaultApiHeaders = () => {
+  return {
+    Authorization: `Bearer ${process.env.DROPBOX_ACCESS_TOKEN}`,
+    "Content-Type": "application/json",
+  };
+};
 
 export const getTracks = async () => {
   const response = await fetch("https://api.dropboxapi.com/2/files/search_v2", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.DROPBOX_ACCESS_TOKEN}`,
-      "Content-Type": "application/json",
-    },
+    headers: defaultApiHeaders(),
     body: JSON.stringify({
       query: SEARCH_TAG,
       options: {
@@ -38,4 +45,26 @@ export const getTracks = async () => {
       size: metadata.size,
     };
   });
+};
+
+export const downloadTrack = async (path) => {
+  const response = await fetch("https://content.dropboxapi.com/2/files/download", {
+    method: "POST",
+    headers: {
+      ...defaultApiHeaders(),
+      "Dropbox-API-Arg": JSON.stringify({ path }),
+      "Content-Type": "text/plain",
+    },
+  }).then(async (response) => {
+    // The response is a stream
+    if (response.status !== 200) {
+      console.error(response.status, await response.text());
+      throw new Error("Failed to download track: " + response.status + " - " + response.statusText);
+    } else {
+      const stream = fs.createWriteStream("output.txt");
+      response.body.pipe(stream);
+      await finished(stream);
+    }
+  });
+  return response;
 };
