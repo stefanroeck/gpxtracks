@@ -16,8 +16,13 @@ app.get("/api/tracks", async (req, res) => {
   console.log("Returning tracks");
 
   // Invoke DropBox API to get the tracks
-  const tracks = await getTracks();
-  res.send(tracks);
+  getTracks()
+    .then((tracks) => {
+      res.send(tracks);
+    })
+    .catch((error) => {
+      res.send({ error: error.message });
+    });
 });
 
 // Start the server
