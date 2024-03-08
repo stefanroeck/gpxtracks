@@ -18,6 +18,8 @@ const getAccessToken = async (): Promise<string> => {
     return accessToken;
   }
 
+  console.log("Fetching access token");
+
   const formData: FormData = new FormData();
   formData.append("grant_type", "refresh_token");
   formData.append("client_id", process.env.DROPBOX_APP_KEY as string);
@@ -38,7 +40,7 @@ const getAccessToken = async (): Promise<string> => {
   return accessToken;
 };
 
-interface Track {
+export interface Track {
   id: string;
   name: string;
   path: string;
@@ -84,8 +86,11 @@ export const getTracks = async (): Promise<Track[]> => {
   });
 };
 
-export const downloadTrack = async (path: string): Promise<void> => {
+// returns a single track as fit file
+export const downloadTrack = async (path: string): Promise<Buffer> => {
   const accessToken = await getAccessToken();
+
+  console.log("Downloading track: " + path);
 
   const response = await fetch("https://content.dropboxapi.com/2/files/download", {
     method: "POST",
@@ -100,13 +105,9 @@ export const downloadTrack = async (path: string): Promise<void> => {
       console.error(response.status, await response.text());
       throw new Error("Failed to download track: " + response.status + " - " + response.statusText);
     } else {
-      const stream = fs.createWriteStream("output.txt");
-      if (response.body) {
-        response.body.pipe(stream);
-        await finished(stream);
-      } else {
-        throw new Error("Response body is undefined");
-      }
+      const buffer = await response.arrayBuffer();
+      return Buffer.from(buffer);
     }
   });
+  return response;
 };

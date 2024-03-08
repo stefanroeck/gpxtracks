@@ -11,8 +11,6 @@ app.use(express.static("dist"));
 
 // Listen to GET requests at /api/track
 app.get("/api/tracks", async (req: Request, res: Response) => {
-  console.log("Returning tracks");
-
   // Invoke DropBox API to get the tracks
   getTracks()
     .then((tracks) => {
