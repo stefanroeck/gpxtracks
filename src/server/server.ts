@@ -1,18 +1,16 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import { downloadTrack, getTracks } from "./dropbox.mjs";
+import { downloadTrack, getTracks } from "./dropbox";
 
 dotenv.config();
-const port = process.env.PORT || 3000;
+const port: string | number = process.env.PORT || 3000;
 const app = express();
 
 // Serve static files from the /dist directory
 app.use(express.static("dist"));
 
-//app.get(DROPBOX_AUTH_URL, (req, res) => {});
-
 // Listen to GET requests at /api/track
-app.get("/api/tracks", async (req, res) => {
+app.get("/api/tracks", async (req: Request, res: Response) => {
   console.log("Returning tracks");
 
   // Invoke DropBox API to get the tracks
@@ -20,18 +18,18 @@ app.get("/api/tracks", async (req, res) => {
     .then((tracks) => {
       res.send(tracks);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       res.send({ error: error.message });
     });
 });
 
-app.get("/api/track/:id", async (req, res) => {
+app.get("/api/track/:id", async (req: Request, res: Response) => {
   console.log("Returning track with id: " + req.params.id);
   downloadTrack(req.params.id)
     .then((track) => {
       res.send(track);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       res.send({ error: error.message });
     });
 });
