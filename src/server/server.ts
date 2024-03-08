@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import { downloadTrack, getTracks } from "./dropbox";
+import { parseFitFile } from "./fitparser";
 
 dotenv.config();
 const port: string | number = process.env.PORT || 3000;
@@ -25,9 +26,11 @@ app.get("/api/track/:id", async (req: Request, res: Response) => {
   console.log("Returning track with id: " + req.params.id);
   downloadTrack(req.params.id)
     .then((track) => {
-      res.send(track);
+      parseFitFile(track);
+      res.send(JSON.stringify({ message: "Success" }));
     })
     .catch((error: any) => {
+      console.error(error);
       res.send({ error: error.message });
     });
 });
