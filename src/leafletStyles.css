@@ -1,60 +1,73 @@
 .leaflet-popup-content-wrapper .row {
-    line-height: 20px;
+  line-height: 20px;
 }
 
 .leaflet-popup-content-wrapper .icon {
-    display: inline-block;
-    width: 35px;
+  display: inline-block;
+  width: 35px;
 }
 
-.leaflet-control-layers-selector{
-    display: none;
+.leaflet-control-layers-selector {
+  display: none;
 }
 
 .leaflet-control-layers-base > label > span {
-    display: inline-block;
-    padding: 6px 10px;
-    font-size: 1rem;
+  display: inline-block;
+  padding: 6px 10px;
+  font-size: 1rem;
 }
 
 .leaflet-control-layers label {
-    display: inline-block;
-    border-right: 1px solid lightgray;
-    cursor: pointer;
-    background-color: white;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+  display: inline-block;
+  border-right: 1px solid lightgray;
+  cursor: pointer;
+  background-color: white;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .leaflet-control-layers label:hover {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 label:has(:checked) {
-    background-color: rgb(230, 230, 230);
- }
+  background-color: rgb(230, 230, 230);
+}
 
 .leaflet-control-layers label:first-child {
-    border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px;
 }
 
 .leaflet-control-layers label:last-child {
-    border-radius: 0 5px 5px 0;
+  border-radius: 0 5px 5px 0;
 }
 
 .leaflet-control-layers-expanded {
-    padding: 0;
+  padding: 0;
 }
 
-.leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar {
-    border: 0px solid lightgrey;
-    background-color: transparent;
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border: 0px solid lightgrey;
+  background-color: transparent;
 }
 
 .leaflet-top.leaflet-left {
-    /* Resize route selector for smaller width screens */
-    max-width: 47%;
+  /* Resize route selector for smaller width screens */
+  max-width: 47%;
 }
 
 .leaflet-top.leaflet-right {
-    max-width: 47%;
+  max-width: 47%;
+}
+
+.leaflet-github-icon {
+  border-radius: 2px;
+  padding: 4px;
+  cursor: pointer;
+  background-color: white;
+  width: 30px;
+}
+
+.leaflet-github-icon:hover {
+  background-color: #f4f4f4;
 }

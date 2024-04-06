@@ -7,6 +7,7 @@ import { showElevation, hideElevation } from "./elevation";
 import { controlLayersInline } from "./controlLayersInline";
 import { baseMaps } from "./mapconfig";
 import { renderRouteSelector } from "./routeSelector";
+import { renderGitHubIcon } from "./github";
 import { renderRouteInfo } from "./routeInfo";
 
 controlLayersInline();
@@ -72,6 +73,8 @@ L.control
     position: "topleft",
   })
   .addTo(map);
+
+renderGitHubIcon(map);
 
 const lineStyleNormal = {
   color: "#086eb7",
