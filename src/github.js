@@ -2,7 +2,7 @@ export const renderGitHubIcon = (map) => {
   L.Control.GitHubIcon = L.Control.extend({
     onAdd: function () {
       const img = L.DomUtil.create("img");
-      img.src = "github-mark.svg";
+      img.src = "images/github-mark.svg";
       img.className = "leaflet-github-icon";
       const link = L.DomUtil.create("a");
       link.href = "https://github.com/stefanroeck/gpxtracks";

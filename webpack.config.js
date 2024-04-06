@@ -1,14 +1,14 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const webpack = require('webpack');
-require('dotenv').config({ path: './.env' });
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const webpack = require("webpack");
+require("dotenv").config({ path: "./.env" });
 
 module.exports = {
-  entry: './src/index.js',
+  entry: "./src/index.js",
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: "main.js",
+    path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
@@ -20,17 +20,13 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './public/index.html'
+      template: "./public/index.html",
     }),
     new CopyWebpackPlugin({
-      patterns: [
-        { from: 'public/gpx', to: 'gpx' },
-        { from: 'public/favicon.ico' },
-//        { from: 'public/images', to: 'images' },
-      ]
+      patterns: [{ from: "public/gpx", to: "gpx" }, { from: "public/favicon.ico" }, { from: "public/images", to: "images" }],
     }),
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
-    }),    
-  ]
+    }),
+  ],
 };
