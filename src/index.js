@@ -95,12 +95,14 @@ const registerEventsForTrack = (mapTrack) => {
   });
 
   mapTrack.on("mouseover", function (e) {
+    routeInfoBox.showRouteInfo(mapTrack);
     const layer = e.target;
     layer.setStyle(lineStyleHover);
     layer.bringToFront();
   });
 
   mapTrack.on("mouseout", function (e) {
+    routeInfoBox.hideRouteInfo();
     const layer = e.target;
     layer.setStyle(lineStyleNormal);
   });
