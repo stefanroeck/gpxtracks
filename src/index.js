@@ -8,220 +8,172 @@ import { controlLayersInline } from "./controlLayersInline";
 import { baseMaps } from "./mapconfig";
 import { RouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
-import { renderRouteInfo } from "./routeInfo";
-import { Route } from "./types";
+import { RouteInfoBox } from "./routeInfo";
+import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
+import { fetchAllTracks } from "./backend";
 
-controlLayersInline();
+class GpxTracksMain {
+  /** @type {Route[]} */
+  allMapLayers = [];
+  maps = baseMaps();
+  /** @type {RouteInfoBox} */
+  routeInfoBox;
+  /** @type {L.Map} */
+  map;
 
-const maps = baseMaps();
-const layers = Object.keys(maps).map((k) => maps[k]);
+  constructor() {
+    controlLayersInline();
 
-const map = L.map("map", {
-  layers: [layers[0]], // select first as default layer
-  zoomControl: false,
-  attributionControl: true,
-}).setView([49.031654, 8.815047], 10);
+    const layers = Object.keys(this.maps).map((k) => this.maps[k]);
 
-L.control
-  .layers(maps, null, {
-    position: "topright",
-  })
-  .addTo(map);
+    this.map = L.map("map", {
+      layers: [layers[0]], // select first as default layer
+      zoomControl: false,
+      attributionControl: true,
+    }).setView([49.031654, 8.815047], 10);
 
-/** @type {Route[]} */
-const allMapLayers = [];
+    L.control
+      .layers(this.maps, null, {
+        position: "topright",
+      })
+      .addTo(this.map);
 
-const routeInfoBox = renderRouteInfo(map);
+    this.routeInfoBox = new RouteInfoBox(this.map);
 
-/**
- * @param {Route} route
- */
-const onRouteSelected = (route) => {
-  if (!route) {
-    hideElevation();
-    routeInfoBox.hideRouteInfo();
-    showAllTracks();
-    window.history.pushState(undefined, undefined, "?");
-  } else {
-    let shownLayer;
-    allMapLayers.forEach((l) => {
-      if (l.gpx !== route.gpx) {
-        map.removeLayer(l.mapTrack);
-      } else {
-        shownLayer = l.mapTrack;
-        if (!map.hasLayer(l.mapTrack)) {
-          map.addLayer(l.mapTrack);
-        }
+    this.map.on("click", (e) => {
+      if (e.originalEvent.target.tagName === "DIV") {
+        // clicked somewhere on the map but not on a SVG PATH
+        hideElevation();
+        this.routeInfoBox.hideRouteInfo();
       }
     });
-    if (shownLayer) {
-      map.fitBounds(shownLayer.getBounds());
-      showElevationPanel(shownLayer);
-      routeInfoBox.showRouteInfo(shownLayer);
-      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(shownLayer.get_name()));
+
+    const routeSelector = new RouteSelector(this.map, (r) => this.onRouteSelected(r)); // lambda to keep "this" context
+
+    L.control.zoom({ position: "topleft" }).addTo(this.map);
+    renderGitHubIcon(this.map);
+
+    fetchAllTracks().then((loadedMaps) => {
+      this.allMapLayers.push(...loadedMaps);
+
+      loadedMaps.forEach((route) => {
+        this.registerEventsForTrack(route.mapTrack);
+      });
+
+      routeSelector.renderRoutes(loadedMaps);
+
+      const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
+      if (preselectedRoute) {
+        this.onRouteSelected(preselectedRoute);
+        routeSelector.selectRoute(preselectedRoute);
+      } else {
+        this.showAllTracks();
+      }
+    });
+  }
+
+  /**
+   * @param {Route} route
+   */
+  onRouteSelected(route) {
+    if (!route) {
+      hideElevation();
+      this.routeInfoBox.hideRouteInfo();
+      this.showAllTracks();
+      window.history.pushState(undefined, undefined, "?");
+    } else {
+      let shownLayer;
+      this.allMapLayers.forEach((l) => {
+        if (l.gpx !== route.gpx) {
+          this.map.removeLayer(l.mapTrack);
+        } else {
+          shownLayer = l.mapTrack;
+          if (!this.map.hasLayer(l.mapTrack)) {
+            this.map.addLayer(l.mapTrack);
+          }
+        }
+      });
+      if (shownLayer) {
+        this.map.fitBounds(shownLayer.getBounds());
+        this.showElevationPanel(shownLayer);
+        this.routeInfoBox.showRouteInfo(shownLayer);
+        window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(shownLayer.get_name()));
+      }
     }
   }
-};
 
-map.on("click", (e) => {
-  if (e.originalEvent.target.tagName === "DIV") {
-    // clicked somewhere on the map but not on a SVG PATH
-    hideElevation();
-    routeInfoBox.hideRouteInfo();
-  }
-});
-
-const routeSelector = new RouteSelector(map, onRouteSelected);
-
-L.control
-  .zoom({
-    position: "topleft",
-  })
-  .addTo(map);
-
-renderGitHubIcon(map);
-
-const lineStyleNormal = {
-  color: "#086eb7",
-  opacity: 1.0,
-  weight: 5,
-  lineCap: "round",
-  className: "gpxTrack",
-};
-
-const lineStyleHover = {
-  color: "#ef7c0a",
-};
-
-/**
- * @param {L.GPX} mapTrack
- */
-const registerEventsForTrack = (mapTrack) => {
-  mapTrack.on("click", function (e) {
-    const layer = e.target;
-    layer.setStyle(lineStyleHover);
-    layer.bringToFront();
-    showElevationPanel(mapTrack);
-    routeInfoBox.showRouteInfo(mapTrack);
-  });
-
-  mapTrack.on("mouseover", function (e) {
-    routeInfoBox.showRouteInfo(mapTrack);
-    const layer = e.target;
-    layer.setStyle(lineStyleHover);
-    layer.bringToFront();
-  });
-
-  mapTrack.on("mouseout", function (e) {
-    routeInfoBox.hideRouteInfo();
-    const layer = e.target;
-    layer.setStyle(lineStyleNormal);
-  });
-};
-
-/**
- * @param {L.GPX} mapTrack
- */
-const showElevationPanel = (mapTrack) => {
-  showElevation(mapTrack.get_elevation_data(), `↗ ${mapTrack.get_elevation_gain()}m ↘ ${mapTrack.get_elevation_loss()}m`);
-};
-
-/**
- *
- * @param {string} route
- * @returns {Promise<L.GPX>}
- */
-const loadRoute = async (route) => {
-  const track = new L.GPX("./gpx/" + route, {
-    async: true,
-    marker_options: {
-      startIconUrl: "",
-      endIconUrl: "",
-      shadowUrl: "",
-    },
-    polyline_options: lineStyleNormal,
-  });
-
-  /** @type {L.GPX} */
-  const mapTrack = await new Promise((res) => {
-    track.on("loaded", (e) => res(e.target));
-  });
-  return mapTrack;
-};
-
-const showAllTracks = () => {
-  const allTracks = allMapLayers.map((t) => t.mapTrack);
-  allTracks.forEach((t) => map.addLayer(t));
-
-  const bounds = allTracks
-    .map((t) => t.getBounds())
-    .reduce((prev, curr) => {
-      return {
-        _southWest: {
-          lat: Math.min(prev._southWest.lat, curr._southWest.lat),
-          lng: Math.min(prev._southWest.lng, curr._southWest.lng),
-        },
-        _northEast: {
-          lat: Math.max(prev._northEast.lat, curr._northEast.lat),
-          lng: Math.max(prev._northEast.lng, curr._northEast.lng),
-        },
-      };
-    }, allTracks[0].getBounds());
-
-  map.fitBounds([
-    [bounds._southWest.lat, bounds._southWest.lng],
-    [bounds._northEast.lat, bounds._northEast.lng],
-  ]);
-};
-
-/**
- * @param {string[]} gpxFiles
- * @returns {Promise<Route[]>}
- */
-const loadAllRoutes = async (gpxFiles) => {
-  return await Promise.all(
-    gpxFiles.map((gpx) => {
-      return new Promise((res) => {
-        loadRoute(gpx).then((mapTrack) => res(new Route(mapTrack, gpx)));
-      });
-    })
-  );
-};
-
-/**
- * @param {string} queryString
- * @param {Route[]} loadedMaps
- * @returns {Route | undefined}
- */
-const findRouteBasedOnQueryString = (queryString, loadedMaps) => {
-  const trackNameArray = queryString.includes("track=") ? queryString.split("=") : [];
-  const trackName = trackNameArray.length === 2 ? decodeURIComponent(trackNameArray[1]) : undefined;
-  if (trackName) {
-    const route = loadedMaps.find((r) => r.mapTrack.get_name() === trackName);
-    return route;
-  }
-};
-
-fetch("./gpx/allTracks.txt").then(async (response) => {
-  if (response.ok) {
-    const files = await response.text();
-    const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
-
-    const loadedMaps = await loadAllRoutes(gpxFiles);
-    allMapLayers.push(...loadedMaps);
-
-    loadedMaps.forEach((route) => {
-      registerEventsForTrack(route.mapTrack);
+  /**
+   * @param {L.GPX} mapTrack
+   */
+  registerEventsForTrack(mapTrack) {
+    const self = this;
+    mapTrack.on("click", function (e) {
+      const layer = e.target;
+      layer.setStyle(lineStyleHover);
+      layer.bringToFront();
+      self.showElevationPanel(mapTrack);
+      self.routeInfoBox.showRouteInfo(mapTrack);
     });
 
-    routeSelector.renderRoutes(loadedMaps);
+    mapTrack.on("mouseover", function (e) {
+      self.routeInfoBox.showRouteInfo(mapTrack);
+      const layer = e.target;
+      layer.setStyle(lineStyleHover);
+      layer.bringToFront();
+    });
 
-    const preselectedRoute = findRouteBasedOnQueryString(window.location.search, loadedMaps);
-    if (preselectedRoute) {
-      onRouteSelected(preselectedRoute);
-      routeSelector.selectRoute(preselectedRoute);
-    } else {
-      showAllTracks();
+    mapTrack.on("mouseout", function (e) {
+      self.routeInfoBox.hideRouteInfo();
+      const layer = e.target;
+      layer.setStyle(lineStyleNormal);
+    });
+  }
+
+  /**
+   * @param {L.GPX} mapTrack
+   */
+  showElevationPanel(mapTrack) {
+    showElevation(mapTrack.get_elevation_data(), `↗ ${mapTrack.get_elevation_gain()}m ↘ ${mapTrack.get_elevation_loss()}m`);
+  }
+
+  showAllTracks() {
+    const allTracks = this.allMapLayers.map((t) => t.mapTrack);
+    allTracks.forEach((t) => this.map.addLayer(t));
+
+    const bounds = allTracks
+      .map((t) => t.getBounds())
+      .reduce((prev, curr) => {
+        return {
+          _southWest: {
+            lat: Math.min(prev._southWest.lat, curr._southWest.lat),
+            lng: Math.min(prev._southWest.lng, curr._southWest.lng),
+          },
+          _northEast: {
+            lat: Math.max(prev._northEast.lat, curr._northEast.lat),
+            lng: Math.max(prev._northEast.lng, curr._northEast.lng),
+          },
+        };
+      }, allTracks[0].getBounds());
+
+    this.map.fitBounds([
+      [bounds._southWest.lat, bounds._southWest.lng],
+      [bounds._northEast.lat, bounds._northEast.lng],
+    ]);
+  }
+
+  /**
+   * @param {string} queryString
+   * @param {Route[]} loadedMaps
+   * @returns {Route | undefined}
+   */
+  findRouteBasedOnQueryString(queryString, loadedMaps) {
+    const trackNameArray = queryString.includes("track=") ? queryString.split("=") : [];
+    const trackName = trackNameArray.length === 2 ? decodeURIComponent(trackNameArray[1]) : undefined;
+    if (trackName) {
+      const route = loadedMaps.find((r) => r.mapTrack.get_name() === trackName);
+      return route;
     }
   }
-});
+}
+
+new GpxTracksMain();
