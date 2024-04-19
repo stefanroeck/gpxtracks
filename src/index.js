@@ -181,9 +181,8 @@ const showAllTracks = () => {
 const loadAllRoutes = async (gpxFiles) => {
   return await Promise.all(
     gpxFiles.map((gpx) => {
-      return new Promise(async (res) => {
-        const mapTrack = await loadRoute(gpx);
-        res(new Route(mapTrack, gpx));
+      return new Promise((res) => {
+        loadRoute(gpx).then((mapTrack) => res(new Route(mapTrack, gpx)));
       });
     })
   );

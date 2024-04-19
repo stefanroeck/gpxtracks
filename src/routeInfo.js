@@ -1,4 +1,5 @@
 import { getWeather, weatherCodeToSymbol } from "./weather";
+import L from "leaflet";
 
 export const renderRouteInfo = (map) => {
   L.Control.InfoBox = L.Control.extend({

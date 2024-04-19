@@ -18,7 +18,7 @@ const chartOptions = (data, name) => {
       position: function (pt) {
         return [pt[0] + 20, "10%"];
       },
-      formatter: function (params, ticket) {
+      formatter: function (params) {
         return `${params[0].value[2]}`;
       },
       axisPointer: {

@@ -1,3 +1,5 @@
+import L from "leaflet";
+
 export const renderGitHubIcon = (map) => {
   L.Control.GitHubIcon = L.Control.extend({
     onAdd: function () {
