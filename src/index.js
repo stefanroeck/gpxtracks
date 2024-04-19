@@ -6,7 +6,7 @@ import "./leafletStyles.css";
 import { showElevation, hideElevation } from "./elevation";
 import { controlLayersInline } from "./controlLayersInline";
 import { baseMaps } from "./mapconfig";
-import { renderRouteSelector } from "./routeSelector";
+import { RouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
 import { renderRouteInfo } from "./routeInfo";
 import { Route } from "./types";
@@ -28,7 +28,7 @@ L.control
   })
   .addTo(map);
 
-/** @type {L.GPX[]} */
+/** @type {Route[]} */
 const allMapLayers = [];
 
 const routeInfoBox = renderRouteInfo(map);
@@ -71,7 +71,7 @@ map.on("click", (e) => {
   }
 });
 
-const routeSelector = renderRouteSelector(map, onRouteSelected);
+const routeSelector = new RouteSelector(map, onRouteSelected);
 
 L.control
   .zoom({

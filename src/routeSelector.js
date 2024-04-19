@@ -3,68 +3,70 @@ import { Route } from "./types";
 
 const ALL_ROUTES = "all_routes";
 
-/**
- * @param {L.Map} map
- * @param {(route: Route) => void} routeSelected
- * @returns {RouteSelector}
- */
-export const renderRouteSelector = (map, routeSelected) => {
-  L.Control.RouteSelector = L.Control.extend({
-    selector: undefined,
-    allRoutes: [],
+export class RouteSelector extends L.Control {
+  /** @type {Route[]} */
+  #allRoutes = [];
 
-    onAdd: function () {
-      this.selector = L.DomUtil.create("select");
-      L.DomUtil.addClass(this.selector, "form-select form-select-md route-selector");
-      this.selector.onchange = (e) => {
-        const selectedRoute = this.allRoutes.find((r) => r.gpx === e.target.value);
-        routeSelected(selectedRoute);
-      };
-      this._addOption(ALL_ROUTES, "Show all routes");
-      return this.selector;
-    },
+  /** @type {HTMLSelectElement} */
+  #selector;
 
-    onRemove: function () {
-      // Nothing to do here
-    },
+  /** @type {(route: Route) => void} */
+  #onRouteSelected;
 
-    /**
-     *
-     * @param {Route[]} routes
-     */
-    renderRoutes: function (routes) {
-      routes.sort((a, b) => a.mapTrack.get_name().localeCompare(b.mapTrack.get_name()));
+  /**
+   * @param {L.Map} map
+   * @param {(route: Route) => void} onRouteSelected
+   * @returns {RouteSelector}
+   */
+  constructor(map, onRouteSelected) {
+    super({ position: "topleft" });
+    this.#onRouteSelected = onRouteSelected;
+    super.addTo(map);
+  }
 
-      this.allRoutes = routes;
+  onAdd() {
+    this.#selector = L.DomUtil.create("select");
+    L.DomUtil.addClass(this.#selector, "form-select form-select-md route-selector");
+    this.#selector.onchange = (e) => {
+      const selectedRoute = this.#allRoutes.find((r) => r.gpx === e.target.value);
+      this.#onRouteSelected(selectedRoute);
+    };
+    this.#addOption(ALL_ROUTES, "Show all routes");
+    return this.#selector;
+  }
 
-      routes.forEach((route) => {
-        const label = `${route.mapTrack.get_name()} (${route.mapTrack.get_start_time().toLocaleDateString()})`;
-        this._addOption(route.gpx, label);
-      });
-    },
+  onRemove() {
+    // Nothing to do here
+  }
 
-    /**
-     * @param {Route} route
-     */
-    selectRoute: function (route) {
-      this.selector.value = route.gpx;
-    },
+  /**
+   *
+   * @param {Route[]} routes
+   */
+  renderRoutes(routes) {
+    this.#allRoutes = [...routes].sort((a, b) => a.mapTrack.get_name().localeCompare(b.mapTrack.get_name()));
 
-    /**
-     * @param {string} value
-     * @param {string} label
-     */
-    _addOption: function (value, label) {
-      const option = L.DomUtil.create("option");
-      option.innerText = label;
-      option.value = value;
-      this.selector.appendChild(option);
-    },
-  });
+    this.#allRoutes.forEach((route) => {
+      const label = `${route.mapTrack.get_name()} (${route.mapTrack.get_start_time().toLocaleDateString()})`;
+      this.#addOption(route.gpx, label);
+    });
+  }
 
-  L.control.routeSelector = function (opts) {
-    return new L.Control.RouteSelector(opts);
-  };
+  /**
+   * @param {Route} route
+   */
+  selectRoute(route) {
+    this.#selector.value = route.gpx;
+  }
 
-  return L.control.routeSelector({ position: "topleft" }).addTo(map);
-};
+  /**
+   * @param {string} value
+   * @param {string} label
+   */
+  #addOption(value, label) {
+    const option = L.DomUtil.create("option");
+    option.innerText = label;
+    option.value = value;
+    this.#selector.appendChild(option);
+  }
+}
