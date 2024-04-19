@@ -9,6 +9,7 @@ import { baseMaps } from "./mapconfig";
 import { renderRouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
 import { renderRouteInfo } from "./routeInfo";
+import { Route } from "./types";
 
 controlLayersInline();
 
@@ -27,10 +28,14 @@ L.control
   })
   .addTo(map);
 
+/** @type {L.GPX[]} */
 const allMapLayers = [];
 
 const routeInfoBox = renderRouteInfo(map);
 
+/**
+ * @param {Route} route
+ */
 const onRouteSelected = (route) => {
   if (!route) {
     hideElevation();
@@ -88,6 +93,9 @@ const lineStyleHover = {
   color: "#ef7c0a",
 };
 
+/**
+ * @param {L.GPX} mapTrack
+ */
 const registerEventsForTrack = (mapTrack) => {
   mapTrack.on("click", function (e) {
     const layer = e.target;
@@ -111,10 +119,18 @@ const registerEventsForTrack = (mapTrack) => {
   });
 };
 
+/**
+ * @param {L.GPX} mapTrack
+ */
 const showElevationPanel = (mapTrack) => {
   showElevation(mapTrack.get_elevation_data(), `↗ ${mapTrack.get_elevation_gain()}m ↘ ${mapTrack.get_elevation_loss()}m`);
 };
 
+/**
+ *
+ * @param {string} route
+ * @returns {Promise<L.GPX>}
+ */
 const loadRoute = async (route) => {
   const track = new L.GPX("./gpx/" + route, {
     async: true,
@@ -125,6 +141,8 @@ const loadRoute = async (route) => {
     },
     polyline_options: lineStyleNormal,
   });
+
+  /** @type {L.GPX} */
   const mapTrack = await new Promise((res) => {
     track.on("loaded", (e) => res(e.target));
   });
@@ -156,17 +174,26 @@ const showAllTracks = () => {
   ]);
 };
 
+/**
+ * @param {string[]} gpxFiles
+ * @returns {Promise<Route[]>}
+ */
 const loadAllRoutes = async (gpxFiles) => {
   return await Promise.all(
     gpxFiles.map((gpx) => {
       return new Promise(async (res) => {
         const mapTrack = await loadRoute(gpx);
-        res({ mapTrack, gpx });
+        res(new Route(mapTrack, gpx));
       });
     })
   );
 };
 
+/**
+ * @param {string} queryString
+ * @param {Route[]} loadedMaps
+ * @returns {Route | undefined}
+ */
 const findRouteBasedOnQueryString = (queryString, loadedMaps) => {
   const trackNameArray = queryString.includes("track=") ? queryString.split("=") : [];
   const trackName = trackNameArray.length === 2 ? decodeURIComponent(trackNameArray[1]) : undefined;
