@@ -11,6 +11,7 @@ import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
 import { fetchAllTracks } from "./backend";
+import { Route } from "./types";
 
 export class GpxTracksMain {
   /** @type {Route[]} */
@@ -82,9 +83,10 @@ export class GpxTracksMain {
       this.showAllTracks();
       window.history.pushState(undefined, undefined, "?");
     } else {
+      /** @type {L.GPX | undefined} */
       let shownLayer;
       this.allMapLayers.forEach((l) => {
-        if (l.gpx !== route.gpx) {
+        if (l.getTrackId() !== route.getTrackId()) {
           this.map.removeLayer(l.mapTrack);
         } else {
           shownLayer = l.mapTrack;
@@ -97,7 +99,7 @@ export class GpxTracksMain {
         this.map.fitBounds(shownLayer.getBounds());
         this.showElevationPanel(shownLayer);
         this.routeInfoBox.showRouteInfo(shownLayer);
-        window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(shownLayer.get_name()));
+        window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
       }
     }
   }
@@ -167,11 +169,10 @@ export class GpxTracksMain {
    * @returns {Route | undefined}
    */
   findRouteBasedOnQueryString(queryString, loadedMaps) {
-    const trackNameArray = queryString.includes("track=") ? queryString.split("=") : [];
-    const trackName = trackNameArray.length === 2 ? decodeURIComponent(trackNameArray[1]) : undefined;
-    if (trackName) {
-      const route = loadedMaps.find((r) => r.mapTrack.get_name() === trackName);
-      return route;
+    const trackIdArray = queryString.includes("track=") ? queryString.split("=") : [];
+    const trackId = trackIdArray.length === 2 ? decodeURIComponent(trackIdArray[1]) : undefined;
+    if (trackId) {
+      return loadedMaps.find((r) => r.getTrackId() === trackId);
     }
   }
 }

@@ -12,8 +12,7 @@ export const fetchAllTracks = async () => {
       const files = await response.text();
       const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
 
-      const loadedMaps = await loadAllRoutes(gpxFiles);
-      return loadedMaps;
+      return await loadAllRoutes(gpxFiles);
     } else {
       console.error("Failed to fetch allTracks", response.status, response.statusText);
       return [];
