@@ -26,10 +26,8 @@ export const baseMaps = () => {
     maxZoom: 22,
   });
 
-  const dark = L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png", {
-    maxZoom: 20,
-    attribution:
-      '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+  const grey = L.tileLayer("https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_grau/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png", {
+    attribution: 'Map data: &copy; <a href="http://www.govdata.de/dl-de/by-2-0">dl-de/by-2-0</a>',
   });
 
   const baseMaps = {
@@ -37,7 +35,7 @@ export const baseMaps = () => {
     Satellite: satellite,
     Topo: topo,
     Outdoors: outdoors,
-    Dark: dark,
+    Grey: grey,
   };
 
   return baseMaps;
