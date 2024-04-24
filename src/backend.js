@@ -25,22 +25,50 @@ export const fetchAllTracks = async () => {
  * @returns {Promise<Route[]>}
  */
 const loadAllRoutes = async (gpxFiles) => {
-  return await Promise.all(
-    gpxFiles.map((gpx) => {
-      return new Promise((res) => {
-        loadRoute(gpx).then((mapTrack) => res(new Route(mapTrack, gpx)));
+  /** @type {Promise<Route>[]}*/
+  const promisses = gpxFiles.map((gpx) => {
+    return new Promise((res, reject) => {
+      loadRoute("./gpx/" + gpx).then((mapTrack) => {
+        if (mapTrack !== undefined) {
+          res(new Route(mapTrack, gpx));
+        } else {
+          reject("Failed to load " + gpx);
+        }
       });
-    })
-  );
+    });
+  });
+
+  return new Promise((res) => {
+    Promise.allSettled(promisses).then(
+      (routes) => {
+        res(routes.filter((r) => r.status === "fulfilled").map((r) => r.value));
+      },
+      (rejected) => {
+        console.log(rejected);
+      }
+    );
+  });
 };
 
 /**
  *
- * @param {string} route
+ * @param {string} url
  * @returns {Promise<L.GPX>}
  */
-const loadRoute = async (route) => {
-  const track = new L.GPX("./gpx/" + route, {
+const loadRoute = async (url) => {
+  const gpxData = await fetch(url).then((response) => {
+    if (response.ok) {
+      return response.text();
+    }
+    return undefined;
+  });
+
+  if (!gpxData) {
+    console.error("Failed to fetch " + url);
+    return undefined;
+  }
+
+  const track = new L.GPX(gpxData, {
     async: true,
     marker_options: {
       startIconUrl: "",

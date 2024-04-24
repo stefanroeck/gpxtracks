@@ -155,7 +155,7 @@ export class GpxTracksMain {
             lng: Math.max(prev._northEast.lng, curr._northEast.lng),
           },
         };
-      }, allTracks[0].getBounds());
+      }, this.map.getBounds());
 
     this.map.fitBounds([
       [bounds._southWest.lat, bounds._southWest.lng],
