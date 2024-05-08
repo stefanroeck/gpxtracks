@@ -10,8 +10,11 @@ import { RouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
-import { fetchAllTracks } from "./backend";
+import { fetchAllTracks, loadRoute } from "./backend";
 import { Route } from "./types";
+
+/** @type {string | undefined} */
+const DETAILS_BACKEND_ENDPOINT = process.env.DETAILS_BACKEND_ENDPOINT ?? undefined;
 
 export class GpxTracksMain {
   /** @type {Route[]} */
@@ -58,15 +61,15 @@ export class GpxTracksMain {
       this.allMapLayers.push(...loadedMaps);
 
       loadedMaps.forEach((route) => {
-        this.registerEventsForTrack(route.mapTrack);
+        this.registerEventsForTrack(route);
       });
 
       routeSelector.renderRoutes(loadedMaps);
 
       const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
       if (preselectedRoute) {
-        this.onRouteSelected(preselectedRoute);
         routeSelector.selectRoute(preselectedRoute);
+        this.onRouteSelected(preselectedRoute); // async!
       } else {
         this.showAllTracks();
       }
@@ -76,45 +79,46 @@ export class GpxTracksMain {
   /**
    * @param {Route} route
    */
-  onRouteSelected(route) {
+  async onRouteSelected(route) {
     if (!route) {
       hideElevation();
       this.routeInfoBox.hideRouteInfo();
       this.showAllTracks();
       window.history.pushState(undefined, undefined, "?");
     } else {
-      /** @type {L.GPX | undefined} */
-      let shownLayer;
       this.allMapLayers.forEach((l) => {
         if (l.getTrackId() !== route.getTrackId()) {
           this.map.removeLayer(l.mapTrack);
-        } else {
-          shownLayer = l.mapTrack;
-          if (!this.map.hasLayer(l.mapTrack)) {
-            this.map.addLayer(l.mapTrack);
-          }
         }
       });
-      if (shownLayer) {
-        this.map.fitBounds(shownLayer.getBounds());
-        this.showElevationPanel(shownLayer);
-        this.routeInfoBox.showRouteInfo(shownLayer);
-        window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
+
+      const shownLayer = route.mapTrack;
+      if (!this.map.hasLayer(shownLayer)) {
+        this.map.addLayer(shownLayer);
       }
+      this.map.fitBounds(shownLayer.getBounds());
+      this.routeInfoBox.showRouteInfo(shownLayer);
+
+      const detailTrack = await this.loadDetailRouteWithDefault(route);
+      this.showElevationPanel(detailTrack);
+      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
     }
   }
 
   /**
-   * @param {L.GPX} mapTrack
+   * @param {Route} route
    */
-  registerEventsForTrack(mapTrack) {
+  registerEventsForTrack(route) {
     const self = this;
-    mapTrack.on("click", function (e) {
+    const mapTrack = route.mapTrack;
+    mapTrack.on("click", async function (e) {
       const layer = e.target;
       layer.setStyle(lineStyleHover);
       layer.bringToFront();
-      self.showElevationPanel(mapTrack);
       self.routeInfoBox.showRouteInfo(mapTrack);
+
+      const detailTrack = await self.loadDetailRouteWithDefault(route);
+      self.showElevationPanel(detailTrack);
     });
 
     mapTrack.on("mouseover", function (e) {
@@ -129,6 +133,21 @@ export class GpxTracksMain {
       const layer = e.target;
       layer.setStyle(lineStyleNormal);
     });
+  }
+
+  /**
+   * @param {Route} route
+   * @returns {Promise<L.GPX>}
+   */
+  async loadDetailRouteWithDefault(route) {
+    const result = DETAILS_BACKEND_ENDPOINT
+      ? await loadRoute(DETAILS_BACKEND_ENDPOINT.replace("${TRACK_ID}", route.getTrackId()))
+          .then((mapTrack) => mapTrack)
+          .catch((e) => {
+            console.error("Error while loading detailed track", e);
+          })
+      : undefined;
+    return result ?? route.mapTrack;
   }
 
   /**

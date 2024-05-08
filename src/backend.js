@@ -54,9 +54,9 @@ const loadAllRoutes = async (gpxFiles) => {
 /**
  *
  * @param {string} url
- * @returns {Promise<L.GPX>}
+ * @returns {Promise<L.GPX> | undefined}
  */
-const loadRoute = async (url) => {
+export const loadRoute = async (url) => {
   const gpxData = await fetch(url).then((response) => {
     if (response.ok) {
       return response.text();
