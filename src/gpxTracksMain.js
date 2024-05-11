@@ -12,9 +12,7 @@ import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
 import { fetchAllTracks, loadRoute } from "./backend";
 import { Route } from "./types";
-
-/** @type {string | undefined} */
-const DETAILS_BACKEND_ENDPOINT = process.env.DETAILS_BACKEND_ENDPOINT ?? undefined;
+import { BACKEND_ENDPOINT } from "./backend";
 
 export class GpxTracksMain {
   /** @type {Route[]} */
@@ -140,13 +138,12 @@ export class GpxTracksMain {
    * @returns {Promise<L.GPX>}
    */
   async loadDetailRouteWithDefault(route) {
-    const result = DETAILS_BACKEND_ENDPOINT
-      ? await loadRoute(DETAILS_BACKEND_ENDPOINT.replace("${TRACK_ID}", route.getTrackId()))
-          .then((mapTrack) => mapTrack)
-          .catch((e) => {
-            console.error("Error while loading detailed track", e);
-          })
-      : undefined;
+    const detailsGpxUrl = `${BACKEND_ENDPOINT}/tracks/${route.getTrackId()}/gpx_detail`;
+    const result = await loadRoute(detailsGpxUrl, route.getTrackId())
+      .then((mapTrack) => mapTrack)
+      .catch((e) => {
+        console.error("Error while loading detailed track", e);
+      });
     return result ?? route.mapTrack;
   }
 

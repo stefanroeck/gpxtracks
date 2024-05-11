@@ -7,32 +7,35 @@ import { Route } from "./types";
  * @returns {Promise<Route[]>}
  */
 export const fetchAllTracks = async () => {
-  const response = await fetch("./gpx/allTracks.txt");
-  if (response.ok) {
-    const files = await response.text();
-    const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
-    console.debug(`Loading ${gpxFiles.length} tracks...`)
+  const allTracksUrl = `${BACKEND_ENDPOINT}/tracks`;
 
-    const allTracks = await loadAllRoutes(gpxFiles);
-    return allTracks;
-  } else {
-    console.error("Failed to fetch allTracks", response.status, response.statusText);
-    return [];
-  }
+  return fetch(allTracksUrl).then(async (response) => {
+    if (response.ok) {
+      const json = await response.json();
+      const tracks = json.tracks;
+      console.debug(`Loading ${tracks.length} tracks...`)
+
+      return await loadAllRoutes(tracks);
+    } else {
+      console.error("Failed to fetch allTracks", response.status, response.statusText);
+      return [];
+    }
+  });
 };
 
 /**
- * @param {string[]} gpxFiles
+ * @param {string[]} urls
  * @returns {Promise<Route[]>}
  */
-const loadAllRoutes = async (gpxFiles) => {
-  const promisses = gpxFiles.map((gpx) => {
+const loadAllRoutes = async (tracks) => {
+  const promisses = tracks.map((track) => {
     return new Promise((res, reject) => {
-      loadRoute("./gpx/" + gpx).then((mapTrack) => {
+      const url = `${BACKEND_ENDPOINT}/tracks/${track.trackId}/gpx`;
+      loadRoute(url).then((mapTrack) => {
         if (mapTrack !== undefined) {
-          res(new Route(mapTrack, gpx));
+          res(new Route(mapTrack, track.trackId));
         } else {
-          reject("Failed to load " + gpx);
+          reject("Failed to load " + url);
         }
       }).catch(error => {
         console.error("Failed to load route", gpx, error)
@@ -57,12 +60,16 @@ const loadAllRoutes = async (gpxFiles) => {
  * @returns {Promise<L.GPX> | undefined}
  */
 export const loadRoute = async (url) => {
-  const gpxData = await fetch(url).then((response) => {
-    if (response.ok) {
-      return response.text();
-    }
-    return undefined;
-  });
+  const gpxData = await fetch(url)
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      }
+      return undefined;
+    })
+    .catch((e) => {
+      console.error("Failed to fetch " + url, e);
+    });
 
   if (!gpxData) {
     console.error("Failed to fetch " + url);
@@ -86,3 +93,6 @@ export const loadRoute = async (url) => {
   });
   return mapTrack;
 };
+
+/** @type {string | undefined} */
+export const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT ?? "./";
