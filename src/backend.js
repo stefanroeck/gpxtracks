@@ -1,30 +1,37 @@
 import L from "leaflet";
 import { lineStyleNormal } from "./gpxPolylineOptions";
-import { Route } from "./types";
+import { Route, TrackList, TrackListItem } from "./types";
 
 /**
  *
  * @returns {Promise<Route[]>}
  */
 export const fetchAllTracks = async () => {
-  const allTracksUrl = `${BACKEND_ENDPOINT}/tracks`;
-
-  return fetch(allTracksUrl).then(async (response) => {
-    if (response.ok) {
-      const json = await response.json();
-      const tracks = json.tracks;
-      console.debug(`Loading ${tracks.length} tracks...`)
-
-      return await loadAllRoutes(tracks);
-    } else {
-      console.error("Failed to fetch allTracks", response.status, response.statusText);
-      return [];
-    }
-  });
+  return fetchTrackList().then(async (trackList) => fetchTracks(trackList));
 };
 
 /**
- * @param {string[]} urls
+ *
+ * @param {TrackList} tracklist
+ * @returns
+ */
+export const fetchTracks = async (trackList) => {
+  console.debug(`Loading ${trackList.tracks.length} tracks...`)
+  return loadAllRoutes(trackList.tracks);
+};
+
+/**
+ *
+ * @returns {Promise<TrackList>}
+ */
+export const fetchTrackList = async () => {
+  const allTracksUrl = `${BACKEND_ENDPOINT}/tracks`;
+
+  return fetch(allTracksUrl).then((response) => response.json());
+};
+
+/**
+ * @param {TrackListItem[]} tracks
  * @returns {Promise<Route[]>}
  */
 const loadAllRoutes = async (tracks) => {

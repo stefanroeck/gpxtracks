@@ -16,3 +16,41 @@ export class Route {
     return startDate.toISOString().replace(/[-:]/g, "").replace(/[T]/g, "_").slice(0, 13);
   }
 }
+
+export class TrackListItem {
+  /**
+   * @param {string} trackName
+   * @param {string} trackId
+   */
+  constructor(trackId, trackName) {
+    this.trackId = trackId;
+    this.trackName = trackName;
+  }
+}
+
+export class AllTrackBounds {
+  /**
+   * @param {number} minLat
+   * @param {number} minLon
+   * @param {number} maxLat
+   * @param {number} maxLon
+   */
+  constructor(minLat, minLon, maxLat, maxLon) {
+    this.minLat = minLat;
+    this.minLon = minLon;
+    this.maxLat = maxLat;
+    this.maxLon = maxLon;
+  }
+}
+
+export class TrackList {
+  /**
+   *
+   * @param {TrackListItem} tracks
+   * @param {AllTrackBounds} allTrackBounds
+   */
+  constructor(tracks, allTrackBounds) {
+    this.tracks = tracks;
+    this.allTrackBounds = allTrackBounds;
+  }
+}

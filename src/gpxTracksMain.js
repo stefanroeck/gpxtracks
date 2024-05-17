@@ -10,13 +10,15 @@ import { RouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
-import { fetchAllTracks, loadRoute } from "./backend";
-import { Route } from "./types";
+import { fetchTrackList, fetchTracks, loadRoute } from "./backend";
+import { Route, AllTrackBounds } from "./types";
 import { BACKEND_ENDPOINT } from "./backend";
 
 export class GpxTracksMain {
   /** @type {Route[]} */
   allMapLayers = [];
+  /** @type {AllTrackBounds | undefined} */
+  allTrackBounds = undefined;
   maps = baseMaps();
   /** @type {RouteInfoBox} */
   routeInfoBox;
@@ -55,22 +57,32 @@ export class GpxTracksMain {
     L.control.zoom({ position: "topleft" }).addTo(this.map);
     renderGitHubIcon(this.map);
 
-    fetchAllTracks().then((loadedMaps) => {
-      this.allMapLayers.push(...loadedMaps);
+    fetchTrackList().then((trackList) => {
+      this.allTrackBounds = trackList.allTrackBounds;
+      this.map.fitBounds([
+        [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
+        [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
+      ]);
 
-      loadedMaps.forEach((route) => {
-        this.registerEventsForTrack(route);
-      });
+      setTimeout(() => {
+        fetchTracks(trackList).then((loadedMaps) => {
+          this.allMapLayers.push(...loadedMaps);
 
-      routeSelector.renderRoutes(loadedMaps);
+          loadedMaps.forEach((route) => {
+            this.registerEventsForTrack(route);
+          });
 
-      const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
-      if (preselectedRoute) {
-        routeSelector.selectRoute(preselectedRoute);
-        this.onRouteSelected(preselectedRoute); // async!
-      } else {
-        this.showAllTracks();
-      }
+          routeSelector.renderRoutes(loadedMaps);
+
+          const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
+          if (preselectedRoute) {
+            routeSelector.selectRoute(preselectedRoute);
+            this.onRouteSelected(preselectedRoute); // async!
+          } else {
+            this.showAllTracks();
+          }
+        });
+      }, 10);
     });
   }
 
@@ -157,26 +169,12 @@ export class GpxTracksMain {
   showAllTracks() {
     const allTracks = this.allMapLayers.map((t) => t.mapTrack);
     allTracks.forEach((t) => this.map.addLayer(t));
-
-    const bounds = allTracks
-      .map((t) => t.getBounds())
-      .reduce((prev, curr) => {
-        return {
-          _southWest: {
-            lat: Math.min(prev._southWest.lat, curr._southWest.lat),
-            lng: Math.min(prev._southWest.lng, curr._southWest.lng),
-          },
-          _northEast: {
-            lat: Math.max(prev._northEast.lat, curr._northEast.lat),
-            lng: Math.max(prev._northEast.lng, curr._northEast.lng),
-          },
-        };
-      }, this.map.getBounds());
-
-    this.map.fitBounds([
-      [bounds._southWest.lat, bounds._southWest.lng],
-      [bounds._northEast.lat, bounds._northEast.lng],
-    ]);
+    if (this.allTrackBounds) {
+      this.map.fitBounds([
+        [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
+        [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
+      ]);
+    }
   }
 
   /**
