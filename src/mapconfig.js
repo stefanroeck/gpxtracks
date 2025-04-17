@@ -22,7 +22,7 @@ export const baseMaps = () => {
 
   const outdoors = L.tileLayer("https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}", {
     attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    apikey: process.env.OUTDOORS_API_KEY || "YOUR_API_KEY",
+    apikey: import.meta.env.VITE_OUTDOORS_API_KEY || "YOUR_API_KEY",
     maxZoom: 22,
   });
 
