@@ -7,17 +7,18 @@ import { Route } from "./types";
  * @returns {Promise<Route[]>}
  */
 export const fetchAllTracks = async () => {
-  return fetch("./gpx/allTracks.txt").then(async (response) => {
-    if (response.ok) {
-      const files = await response.text();
-      const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
+  const response = await fetch("./gpx/allTracks.txt");
+  if (response.ok) {
+    const files = await response.text();
+    const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
+    console.debug(`Loading ${gpxFiles.length} tracks...`)
 
-      return await loadAllRoutes(gpxFiles);
-    } else {
-      console.error("Failed to fetch allTracks", response.status, response.statusText);
-      return [];
-    }
-  });
+    const allTracks = await loadAllRoutes(gpxFiles);
+    return allTracks;
+  } else {
+    console.error("Failed to fetch allTracks", response.status, response.statusText);
+    return [];
+  }
 };
 
 /**
@@ -25,7 +26,6 @@ export const fetchAllTracks = async () => {
  * @returns {Promise<Route[]>}
  */
 const loadAllRoutes = async (gpxFiles) => {
-  /** @type {Promise<Route>[]}*/
   const promisses = gpxFiles.map((gpx) => {
     return new Promise((res, reject) => {
       loadRoute("./gpx/" + gpx).then((mapTrack) => {
@@ -34,7 +34,11 @@ const loadAllRoutes = async (gpxFiles) => {
         } else {
           reject("Failed to load " + gpx);
         }
-      });
+      }).catch(error => {
+        console.error("Failed to load route", gpx, error)
+        reject("Failed to load " + gpx);
+      }
+      );
     });
   });
 
@@ -42,9 +46,6 @@ const loadAllRoutes = async (gpxFiles) => {
     Promise.allSettled(promisses).then(
       (routes) => {
         res(routes.filter((r) => r.status === "fulfilled").map((r) => r.value));
-      },
-      (rejected) => {
-        console.log(rejected);
       }
     );
   });
@@ -79,8 +80,9 @@ const loadRoute = async (url) => {
   });
 
   /** @type {L.GPX} */
-  const mapTrack = await new Promise((res) => {
+  const mapTrack = await new Promise((res, rej) => {
     track.on("loaded", (e) => res(e.target));
+    track.on("error", (e) => rej(e.err));
   });
   return mapTrack;
 };
