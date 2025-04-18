@@ -102,4 +102,4 @@ export const loadRoute = async (url) => {
 };
 
 /** @type {string | undefined} */
-export const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT ?? "./";
+export const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT ?? "./";
