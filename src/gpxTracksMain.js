@@ -10,12 +10,15 @@ import { RouteSelector } from "./routeSelector";
 import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
-import { fetchAllTracks } from "./backend";
-import { Route } from "./types";
+import { fetchTrackList, fetchTracks, loadRoute } from "./backend";
+import { Route, AllTrackBounds } from "./types";
+import { BACKEND_ENDPOINT } from "./backend";
 
 export class GpxTracksMain {
   /** @type {Route[]} */
   allMapLayers = [];
+  /** @type {AllTrackBounds | undefined} */
+  allTrackBounds = undefined;
   maps = baseMaps();
   /** @type {RouteInfoBox} */
   routeInfoBox;
@@ -54,67 +57,78 @@ export class GpxTracksMain {
     L.control.zoom({ position: "topleft" }).addTo(this.map);
     renderGitHubIcon(this.map);
 
-    fetchAllTracks().then((loadedMaps) => {
-      this.allMapLayers.push(...loadedMaps);
+    fetchTrackList().then((trackList) => {
+      this.allTrackBounds = trackList.allTrackBounds;
+      this.map.fitBounds([
+        [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
+        [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
+      ]);
 
-      loadedMaps.forEach((route) => {
-        this.registerEventsForTrack(route.mapTrack);
-      });
+      setTimeout(() => {
+        fetchTracks(trackList).then((loadedMaps) => {
+          this.allMapLayers.push(...loadedMaps);
 
-      routeSelector.renderRoutes(loadedMaps);
+          loadedMaps.forEach((route) => {
+            this.registerEventsForTrack(route);
+          });
 
-      const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
-      if (preselectedRoute) {
-        this.onRouteSelected(preselectedRoute);
-        routeSelector.selectRoute(preselectedRoute);
-      } else {
-        this.showAllTracks();
-      }
+          routeSelector.renderRoutes(loadedMaps);
+
+          const preselectedRoute = this.findRouteBasedOnQueryString(window.location.search, loadedMaps);
+          if (preselectedRoute) {
+            routeSelector.selectRoute(preselectedRoute);
+            this.onRouteSelected(preselectedRoute); // async!
+          } else {
+            this.showAllTracks();
+          }
+        });
+      }, 10);
     });
   }
 
   /**
    * @param {Route} route
    */
-  onRouteSelected(route) {
+  async onRouteSelected(route) {
     if (!route) {
       hideElevation();
       this.routeInfoBox.hideRouteInfo();
       this.showAllTracks();
       window.history.pushState(undefined, undefined, "?");
     } else {
-      /** @type {L.GPX | undefined} */
-      let shownLayer;
       this.allMapLayers.forEach((l) => {
         if (l.getTrackId() !== route.getTrackId()) {
           this.map.removeLayer(l.mapTrack);
-        } else {
-          shownLayer = l.mapTrack;
-          if (!this.map.hasLayer(l.mapTrack)) {
-            this.map.addLayer(l.mapTrack);
-          }
         }
       });
-      if (shownLayer) {
-        this.map.fitBounds(shownLayer.getBounds());
-        this.showElevationPanel(shownLayer);
-        this.routeInfoBox.showRouteInfo(shownLayer);
-        window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
+
+      const shownLayer = route.mapTrack;
+      if (!this.map.hasLayer(shownLayer)) {
+        this.map.addLayer(shownLayer);
       }
+      this.map.fitBounds(shownLayer.getBounds());
+      this.routeInfoBox.showRouteInfo(shownLayer);
+
+      const detailTrack = await this.loadDetailRouteWithDefault(route);
+      this.showElevationPanel(detailTrack);
+      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
     }
   }
 
   /**
-   * @param {L.GPX} mapTrack
+   * @param {Route} route
    */
-  registerEventsForTrack(mapTrack) {
+  registerEventsForTrack(route) {
     const self = this;
-    mapTrack.on("click", function (e) {
+    const mapTrack = route.mapTrack;
+    mapTrack.on("click", async function (e) {
       const layer = e.target;
       layer.setStyle(lineStyleHover);
       layer.bringToFront();
-      self.showElevationPanel(mapTrack);
       self.routeInfoBox.showRouteInfo(mapTrack);
+
+      const detailTrack = await self.loadDetailRouteWithDefault(route);
+      self.showElevationPanel(detailTrack);
     });
 
     mapTrack.on("mouseover", function (e) {
@@ -132,6 +146,20 @@ export class GpxTracksMain {
   }
 
   /**
+   * @param {Route} route
+   * @returns {Promise<L.GPX>}
+   */
+  async loadDetailRouteWithDefault(route) {
+    const detailsGpxUrl = `${BACKEND_ENDPOINT}/tracks/${route.getTrackId()}/gpx_detail`;
+    const result = await loadRoute(detailsGpxUrl, route.getTrackId())
+      .then((mapTrack) => mapTrack)
+      .catch((e) => {
+        console.error("Error while loading detailed track", e);
+      });
+    return result ?? route.mapTrack;
+  }
+
+  /**
    * @param {L.GPX} mapTrack
    */
   showElevationPanel(mapTrack) {
@@ -141,26 +169,12 @@ export class GpxTracksMain {
   showAllTracks() {
     const allTracks = this.allMapLayers.map((t) => t.mapTrack);
     allTracks.forEach((t) => this.map.addLayer(t));
-
-    const bounds = allTracks
-      .map((t) => t.getBounds())
-      .reduce((prev, curr) => {
-        return {
-          _southWest: {
-            lat: Math.min(prev._southWest.lat, curr._southWest.lat),
-            lng: Math.min(prev._southWest.lng, curr._southWest.lng),
-          },
-          _northEast: {
-            lat: Math.max(prev._northEast.lat, curr._northEast.lat),
-            lng: Math.max(prev._northEast.lng, curr._northEast.lng),
-          },
-        };
-      }, this.map.getBounds());
-
-    this.map.fitBounds([
-      [bounds._southWest.lat, bounds._southWest.lng],
-      [bounds._northEast.lat, bounds._northEast.lng],
-    ]);
+    if (this.allTrackBounds) {
+      this.map.fitBounds([
+        [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
+        [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
+      ]);
+    }
   }
 
   /**

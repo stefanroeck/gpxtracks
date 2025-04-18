@@ -1,38 +1,48 @@
 import L from "leaflet";
 import { lineStyleNormal } from "./gpxPolylineOptions";
-import { Route } from "./types";
+import { Route, TrackList, TrackListItem } from "./types";
 
 /**
  *
  * @returns {Promise<Route[]>}
  */
 export const fetchAllTracks = async () => {
-  const response = await fetch("./gpx/allTracks.txt");
-  if (response.ok) {
-    const files = await response.text();
-    const gpxFiles = files.split("\n").filter((l) => l.trim().length > 0);
-    console.debug(`Loading ${gpxFiles.length} tracks...`)
-
-    const allTracks = await loadAllRoutes(gpxFiles);
-    return allTracks;
-  } else {
-    console.error("Failed to fetch allTracks", response.status, response.statusText);
-    return [];
-  }
+  return fetchTrackList().then(async (trackList) => fetchTracks(trackList));
 };
 
 /**
- * @param {string[]} gpxFiles
+ *
+ * @param {TrackList} tracklist
+ * @returns
+ */
+export const fetchTracks = async (trackList) => {
+  console.debug(`Loading ${trackList.tracks.length} tracks...`)
+  return loadAllRoutes(trackList.tracks);
+};
+
+/**
+ *
+ * @returns {Promise<TrackList>}
+ */
+export const fetchTrackList = async () => {
+  const allTracksUrl = `${BACKEND_ENDPOINT}/tracks`;
+
+  return fetch(allTracksUrl).then((response) => response.json());
+};
+
+/**
+ * @param {TrackListItem[]} tracks
  * @returns {Promise<Route[]>}
  */
-const loadAllRoutes = async (gpxFiles) => {
-  const promisses = gpxFiles.map((gpx) => {
+const loadAllRoutes = async (tracks) => {
+  const promisses = tracks.map((track) => {
     return new Promise((res, reject) => {
-      loadRoute("./gpx/" + gpx).then((mapTrack) => {
+      const url = `${BACKEND_ENDPOINT}/tracks/${track.trackId}/gpx`;
+      loadRoute(url).then((mapTrack) => {
         if (mapTrack !== undefined) {
-          res(new Route(mapTrack, gpx));
+          res(new Route(mapTrack, track.trackId));
         } else {
-          reject("Failed to load " + gpx);
+          reject("Failed to load " + url);
         }
       }).catch(error => {
         console.error("Failed to load route", gpx, error)
@@ -54,15 +64,19 @@ const loadAllRoutes = async (gpxFiles) => {
 /**
  *
  * @param {string} url
- * @returns {Promise<L.GPX>}
+ * @returns {Promise<L.GPX> | undefined}
  */
-const loadRoute = async (url) => {
-  const gpxData = await fetch(url).then((response) => {
-    if (response.ok) {
-      return response.text();
-    }
-    return undefined;
-  });
+export const loadRoute = async (url) => {
+  const gpxData = await fetch(url)
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      }
+      return undefined;
+    })
+    .catch((e) => {
+      console.error("Failed to fetch " + url, e);
+    });
 
   if (!gpxData) {
     console.error("Failed to fetch " + url);
@@ -86,3 +100,6 @@ const loadRoute = async (url) => {
   });
   return mapTrack;
 };
+
+/** @type {string | undefined} */
+export const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT ?? "./";
