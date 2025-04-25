@@ -2,17 +2,11 @@ import L from "leaflet";
 import "leaflet-gpx"
 
 export class Route {
-  private gpx: string;
-  private mapTrack: L.GPX;
-  constructor(mapTrack: L.GPX, gpx: string) {
-    this.gpx = gpx;
+  trackId: string;
+  mapTrack: L.GPX;
+  constructor(mapTrack: L.GPX, trackId: string) {
+    this.trackId = trackId;
     this.mapTrack = mapTrack;
-  }
-
-  getTrackId() {
-    // format date as yyyyMMdd_HHmm
-    const startDate = this.mapTrack.get_start_time();
-    return startDate.toISOString().replace(/[-:]/g, "").replace(/[T]/g, "_").slice(0, 13);
   }
 }
 

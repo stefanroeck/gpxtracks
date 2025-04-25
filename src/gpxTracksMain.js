@@ -97,7 +97,7 @@ export class GpxTracksMain {
       window.history.pushState(undefined, undefined, "?");
     } else {
       this.allMapLayers.forEach((l) => {
-        if (l.getTrackId() !== route.getTrackId()) {
+        if (l.trackId !== route.trackId) {
           this.map.removeLayer(l.mapTrack);
         }
       });
@@ -111,7 +111,7 @@ export class GpxTracksMain {
 
       const detailTrack = await this.loadDetailRouteWithDefault(route);
       this.showElevationPanel(detailTrack);
-      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.getTrackId()));
+      window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.trackId));
     }
   }
 
@@ -150,8 +150,8 @@ export class GpxTracksMain {
    * @returns {Promise<L.GPX>}
    */
   async loadDetailRouteWithDefault(route) {
-    const detailsGpxUrl = `${BACKEND_ENDPOINT}/tracks/${route.getTrackId()}/gpx_detail`;
-    const result = await loadRoute(detailsGpxUrl, route.getTrackId())
+    const detailsGpxUrl = `${BACKEND_ENDPOINT}/tracks/${route.trackId}/gpx_detail`;
+    const result = await loadRoute(detailsGpxUrl, route.trackId)
       .then((mapTrack) => mapTrack)
       .catch((e) => {
         console.error("Error while loading detailed track", e);
@@ -186,7 +186,7 @@ export class GpxTracksMain {
     const trackIdArray = queryString.includes("track=") ? queryString.split("=") : [];
     const trackId = trackIdArray.length === 2 ? decodeURIComponent(trackIdArray[1]) : undefined;
     if (trackId) {
-      return loadedMaps.find((r) => r.getTrackId() === trackId);
+      return loadedMaps.find((r) => r.trackId === trackId);
     }
   }
 }
