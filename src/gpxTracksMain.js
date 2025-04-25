@@ -59,10 +59,12 @@ export class GpxTracksMain {
 
     fetchTrackList().then((trackList) => {
       this.allTrackBounds = trackList.allTrackBounds;
-      this.map.fitBounds([
-        [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
-        [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
-      ]);
+      if (!window.location.search.includes("track=")) {
+        this.map.fitBounds([
+          [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
+          [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
+        ]);
+      } 
 
       setTimeout(() => {
         fetchTracks(trackList).then((loadedMaps) => {
