@@ -11,7 +11,7 @@ import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
 import { fetchTrackList, fetchTracks, loadRoute } from "./backend";
-import { Route, AllTrackBounds } from "./types";
+import { Route } from "./types";
 import { BACKEND_ENDPOINT } from "./backend";
 
 export class GpxTracksMain {
@@ -107,7 +107,7 @@ export class GpxTracksMain {
         this.map.addLayer(shownLayer);
       }
       this.map.fitBounds(shownLayer.getBounds());
-      this.routeInfoBox.showRouteInfo(shownLayer);
+      this.routeInfoBox.showRouteInfo(route);
 
       const detailTrack = await this.loadDetailRouteWithDefault(route);
       this.showElevationPanel(detailTrack);
@@ -125,14 +125,14 @@ export class GpxTracksMain {
       const layer = e.target;
       layer.setStyle(lineStyleHover);
       layer.bringToFront();
-      self.routeInfoBox.showRouteInfo(mapTrack);
+      self.routeInfoBox.showRouteInfo(route);
 
       const detailTrack = await self.loadDetailRouteWithDefault(route);
       self.showElevationPanel(detailTrack);
     });
 
     mapTrack.on("mouseover", function (e) {
-      self.routeInfoBox.showRouteInfo(mapTrack);
+      self.routeInfoBox.showRouteInfo(route);
       const layer = e.target;
       layer.setStyle(lineStyleHover);
       layer.bringToFront();

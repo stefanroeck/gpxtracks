@@ -1,5 +1,6 @@
-import { getWeather, weatherCodeToSymbol } from "./weather";
 import L from "leaflet";
+import { Route } from "./types";
+import { averageSpeed, durationString } from "./utils";
 
 export class RouteInfoBox extends L.Control {
   /** @type {HTMLDivElement} */
@@ -29,11 +30,11 @@ export class RouteInfoBox extends L.Control {
     // Nothing to do here
   }
 
-  async showRouteInfo(mapTrack) {
-    const latlng = mapTrack.getBounds().getCenter();
-    const day = mapTrack._info.duration.start.toISOString().substring(0, 10);
-    const weather = await getWeather(latlng.lat, latlng.lng, day);
-    const text = this.#popupText(mapTrack, weather);
+  /**
+   * @param {Route} route
+   */
+  async showRouteInfo(route) {
+    const text = this.#popupText(route);
     this.#infoBoxContent.innerHTML = text;
     this.#infoBox.style.display = "block";
   }
@@ -42,14 +43,21 @@ export class RouteInfoBox extends L.Control {
     this.#infoBox.style.display = "none";
   }
 
-  #popupText(track, weather) {
+  /**
+   * @param {Route} route
+   */
+  #popupText(route) {
+    const details = route.trackDetails;
+
     return `
-            <h5>${track.get_name()}</h4>
-            <div class="row"><span class="icon">📅</span>${track.get_start_time().toLocaleDateString()}</div>
-            <div class="row"><span class="icon">🏔</span>${Math.round(track.get_distance() / 1000)} km, ${track.get_elevation_gain()} hm</div>
-            <div class="row"><span class="icon">🏃</span>${Math.round(track.get_total_speed() * 10) / 10} km/h</div>
-            <div class="row"><span class="icon">🕑</span>${track.get_duration_string(track.get_total_time(), true)}</div>
-            <div class="row"><span class="icon">${weatherCodeToSymbol(weather.weatherCode)}</span>${weather.temperature}</div>
+            <h5>${details.trackName}</h4>
+            <div class="row"><span class="icon">📅</span>${new Date(details.trackTimestamp).toLocaleString()}</div>
+            <div class="row"><span class="icon">🏔</span>${Math.round(details.totalDistance / 1000)} km, ${details.totalAscent} hm</div>
+            <div class="row"><span class="icon">🕑</span>${durationString(details.totalTimerTime)} (${durationString(details.totalElapsedTime)})</div>
+            <div class="row"><span class="icon">🏃</span>${averageSpeed(details.totalDistance, details.totalTimerTime)} km/h</div>
+            <div class="row"><span class="icon">🍔</span>${details.totalCalories} kcal</div>
+            <div class="row"><span class="icon">${details.weather.weatherSymbol}</span>${details.weather.temperature}</div>
             `;
   }
+
 }

@@ -23,7 +23,7 @@ const loadAllRoutes = async (tracks: TrackListItem[]): Promise<Route[]> => {
       const url = `${BACKEND_ENDPOINT}/tracks/${track.trackId}/gpx`;
       loadRoute(url).then((mapTrack) => {
         if (mapTrack !== undefined) {
-          res(new Route(mapTrack, track.trackId));
+          res(new Route(mapTrack, track));
         } else {
           reject("Failed to load " + url);
         }

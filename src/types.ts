@@ -4,40 +4,40 @@ import "leaflet-gpx"
 export class Route {
   trackId: string;
   mapTrack: L.GPX;
-  constructor(mapTrack: L.GPX, trackId: string) {
-    this.trackId = trackId;
+  trackDetails: TrackListItem;
+  constructor(mapTrack: L.GPX, trackDetails: TrackListItem) {
+    this.trackId = trackDetails.trackId;
+    this.trackDetails = trackDetails;
     this.mapTrack = mapTrack;
   }
 }
 
-export class TrackListItem {
-  trackId: string;
-  trackName: string;
-  constructor(trackId: string, trackName: string) {
-    this.trackId = trackId;
-    this.trackName = trackName;
-  }
+export interface Weatber {
+  temperature: string;
+  weatherSymbol: string;
 }
 
-export class AllTrackBounds {
+export interface TrackListItem {
+  trackId: string;
+  trackName: string;
+  trackTimestamp: string;
+  totalDistance: number;
+  totalAscent: number;
+  totalDescent: number;
+  totalCalories: number;
+  totalElapsedTime: number;
+  totalTimerTime: number;
+  weather: Weatber;
+}
+
+export interface AllTrackBounds {
   minLat: number;
   minLon: number;
   maxLat: number;
   maxLon: number;
-  constructor(minLat: number, minLon: number, maxLat: number, maxLon: number) {
-    this.minLat = minLat;
-    this.minLon = minLon;
-    this.maxLat = maxLat;
-    this.maxLon = maxLon;
-  }
 }
 
-export class TrackList {
+export interface TrackList {
   tracks: TrackListItem[];
   allTrackBounds: AllTrackBounds;
-
-  constructor(tracks: TrackListItem[], allTrackBounds: AllTrackBounds) {
-    this.tracks = tracks;
-    this.allTrackBounds = allTrackBounds;
-  }
 }
