@@ -52,7 +52,7 @@ export class RouteInfoBox extends L.Control {
     return `
             <h5>${details.trackName}</h4>
             <div class="row"><span class="icon">📅</span>${new Date(details.trackTimestamp).toLocaleString()}</div>
-            <div class="row"><span class="icon">🏔</span>${Math.round(details.totalDistance / 1000)} km, ${details.totalAscent} hm</div>
+            <div class="row"><span class="icon">🏔</span>${(details.totalDistance / 1000).toFixed(1)} km, ${details.totalAscent} hm</div>
             <div class="row"><span class="icon">🕑</span>${durationString(details.totalTimerTime)} (${durationString(details.totalElapsedTime)})</div>
             <div class="row"><span class="icon">🏃</span>${averageSpeed(details.totalDistance, details.totalTimerTime)} km/h</div>
             <div class="row"><span class="icon">🍔</span>${details.totalCalories} kcal</div>
