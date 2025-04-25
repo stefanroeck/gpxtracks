@@ -112,7 +112,7 @@ export class GpxTracksMain {
       this.routeInfoBox.showRouteInfo(route);
 
       const detailTrack = await this.loadDetailRouteWithDefault(route);
-      this.showElevationPanel(detailTrack);
+      this.showElevationPanel(detailTrack, route.trackDetails);
       window.history.pushState(undefined, undefined, "?track=" + encodeURIComponent(route.trackId));
     }
   }
@@ -130,7 +130,7 @@ export class GpxTracksMain {
       self.routeInfoBox.showRouteInfo(route);
 
       const detailTrack = await self.loadDetailRouteWithDefault(route);
-      self.showElevationPanel(detailTrack);
+      self.showElevationPanel(detailTrack, route.trackDetails);
     });
 
     mapTrack.on("mouseover", function (e) {
@@ -163,9 +163,10 @@ export class GpxTracksMain {
 
   /**
    * @param {L.GPX} mapTrack
+   * @param {TrackListItem} trackDetails
    */
-  showElevationPanel(mapTrack) {
-    showElevation(mapTrack.get_elevation_data(), `↗ ${mapTrack.get_elevation_gain()}m ↘ ${mapTrack.get_elevation_loss()}m`);
+  showElevationPanel(mapTrack, trackDetails) {
+    showElevation(mapTrack.get_elevation_data(), `↗ ${trackDetails.totalAscent}m ↘ ${trackDetails.totalDescent}m`);
   }
 
   showAllTracks() {
