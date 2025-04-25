@@ -134,14 +134,12 @@ export class GpxTracksMain {
     });
 
     mapTrack.on("mouseover", function (e) {
-      self.routeInfoBox.showRouteInfo(route);
       const layer = e.target;
       layer.setStyle(lineStyleHover);
       layer.bringToFront();
     });
 
     mapTrack.on("mouseout", function (e) {
-      self.routeInfoBox.hideRouteInfo();
       const layer = e.target;
       layer.setStyle(lineStyleNormal);
     });
