@@ -1,4 +1,6 @@
-export const lineStyleNormal = {
+import { PolylineOptions } from "leaflet";
+
+export const lineStyleNormal: PolylineOptions = {
   color: "#086eb7",
   opacity: 1.0,
   weight: 5,

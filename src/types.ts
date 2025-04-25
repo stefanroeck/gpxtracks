@@ -1,11 +1,10 @@
 import L from "leaflet";
+import "leaflet-gpx"
 
 export class Route {
-  /**
-   * @param {string} gpx
-   * @param {L.GPX} mapTrack
-   */
-  constructor(mapTrack, gpx) {
+  private gpx: string;
+  private mapTrack: L.GPX;
+  constructor(mapTrack: L.GPX, gpx: string) {
     this.gpx = gpx;
     this.mapTrack = mapTrack;
   }
@@ -18,24 +17,20 @@ export class Route {
 }
 
 export class TrackListItem {
-  /**
-   * @param {string} trackName
-   * @param {string} trackId
-   */
-  constructor(trackId, trackName) {
+  trackId: string;
+  trackName: string;
+  constructor(trackId: string, trackName: string) {
     this.trackId = trackId;
     this.trackName = trackName;
   }
 }
 
 export class AllTrackBounds {
-  /**
-   * @param {number} minLat
-   * @param {number} minLon
-   * @param {number} maxLat
-   * @param {number} maxLon
-   */
-  constructor(minLat, minLon, maxLat, maxLon) {
+  minLat: number;
+  minLon: number;
+  maxLat: number;
+  maxLon: number;
+  constructor(minLat: number, minLon: number, maxLat: number, maxLon: number) {
     this.minLat = minLat;
     this.minLon = minLon;
     this.maxLat = maxLat;
@@ -44,12 +39,10 @@ export class AllTrackBounds {
 }
 
 export class TrackList {
-  /**
-   *
-   * @param {TrackListItem} tracks
-   * @param {AllTrackBounds} allTrackBounds
-   */
-  constructor(tracks, allTrackBounds) {
+  tracks: TrackListItem[];
+  allTrackBounds: AllTrackBounds;
+
+  constructor(tracks: TrackListItem[], allTrackBounds: AllTrackBounds) {
     this.tracks = tracks;
     this.allTrackBounds = allTrackBounds;
   }

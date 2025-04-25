@@ -2,40 +2,23 @@ import L from "leaflet";
 import { lineStyleNormal } from "./gpxPolylineOptions";
 import { Route, TrackList, TrackListItem } from "./types";
 
-/**
- *
- * @returns {Promise<Route[]>}
- */
-export const fetchAllTracks = async () => {
+export const fetchAllTracks = async (): Promise<Route[]> => {
   return fetchTrackList().then(async (trackList) => fetchTracks(trackList));
 };
 
-/**
- *
- * @param {TrackList} tracklist
- * @returns
- */
-export const fetchTracks = async (trackList) => {
+export const fetchTracks = async (trackList: TrackList) => {
   console.debug(`Loading ${trackList.tracks.length} tracks...`)
   return loadAllRoutes(trackList.tracks);
 };
 
-/**
- *
- * @returns {Promise<TrackList>}
- */
-export const fetchTrackList = async () => {
+export const fetchTrackList = async (): Promise<TrackList> => {
   const allTracksUrl = `${BACKEND_ENDPOINT}/tracks`;
 
   return fetch(allTracksUrl).then((response) => response.json());
 };
 
-/**
- * @param {TrackListItem[]} tracks
- * @returns {Promise<Route[]>}
- */
-const loadAllRoutes = async (tracks) => {
-  const promisses = tracks.map((track) => {
+const loadAllRoutes = async (tracks: TrackListItem[]): Promise<Route[]> => {
+  const promisses: Promise<Route>[] = tracks.map((track) => {
     return new Promise((res, reject) => {
       const url = `${BACKEND_ENDPOINT}/tracks/${track.trackId}/gpx`;
       loadRoute(url).then((mapTrack) => {
@@ -45,8 +28,8 @@ const loadAllRoutes = async (tracks) => {
           reject("Failed to load " + url);
         }
       }).catch(error => {
-        console.error("Failed to load route", gpx, error)
-        reject("Failed to load " + gpx);
+        console.error("Failed to load route", track, error)
+        reject("Failed to load " + track);
       }
       );
     });
@@ -61,12 +44,7 @@ const loadAllRoutes = async (tracks) => {
   });
 };
 
-/**
- *
- * @param {string} url
- * @returns {Promise<L.GPX> | undefined}
- */
-export const loadRoute = async (url) => {
+export const loadRoute = async (url: string): Promise<L.GPX | undefined> => {
   const gpxData = await fetch(url)
     .then((response) => {
       if (response.ok) {
@@ -93,13 +71,12 @@ export const loadRoute = async (url) => {
     polyline_options: lineStyleNormal,
   });
 
-  /** @type {L.GPX} */
-  const mapTrack = await new Promise((res, rej) => {
+  const mapTrack: L.GPX = await new Promise((res, rej) => {
     track.on("loaded", (e) => res(e.target));
-    track.on("error", (e) => rej(e.err));
+    track.on("error", (e) => rej(e));
   });
   return mapTrack;
 };
 
-/** @type {string | undefined} */
-export const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT ?? "./";
+
+export const BACKEND_ENDPOINT: string | undefined = import.meta.env.VITE_BACKEND_ENDPOINT ?? "./";
