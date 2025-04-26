@@ -28,7 +28,7 @@ export class RouteSelector extends L.Control {
     this.#selector = L.DomUtil.create("select");
     L.DomUtil.addClass(this.#selector, "form-select form-select-md route-selector");
     this.#selector.onchange = (e) => {
-      const selectedRoute = this.#allRoutes.find((r) => r.gpx === e.target.value);
+      const selectedRoute = this.#allRoutes.find((r) => r.trackId === e.target.value);
       this.#onRouteSelected(selectedRoute);
     };
     this.#addOption(ALL_ROUTES, "Show all routes");
@@ -48,7 +48,7 @@ export class RouteSelector extends L.Control {
 
     this.#allRoutes.forEach((route) => {
       const label = `${route.mapTrack.get_name()} (${route.mapTrack.get_start_time().toLocaleDateString()})`;
-      this.#addOption(route.gpx, label);
+      this.#addOption(route.trackId, label);
     });
   }
 
@@ -56,7 +56,7 @@ export class RouteSelector extends L.Control {
    * @param {Route} route
    */
   selectRoute(route) {
-    this.#selector.value = route.gpx;
+    this.#selector.value = route.trackId;
   }
 
   /**
