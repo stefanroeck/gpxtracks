@@ -59,7 +59,7 @@ export class GpxTracksMain {
 
     fetchTrackList().then((trackList) => {
       this.allTrackBounds = trackList.allTrackBounds;
-      if (!window.location.search.includes("track=")) {
+      if (!window.location.search.includes("track=") && this.allTrackBounds) {
         this.map.fitBounds([
           [this.allTrackBounds.minLat, this.allTrackBounds.minLon],
           [this.allTrackBounds.maxLat, this.allTrackBounds.maxLon],
