@@ -48,14 +48,20 @@ export class RouteInfoBox extends L.Control {
    */
   #popupText(route) {
     const details = route.trackDetails;
+    let caloriesMarkup = "";
+    if (details.totalCalories) {
+      caloriesMarkup = `<div class="row"><span class="icon">🍔</span>${details.totalCalories} kcal</div>` 
+    }
+    const ascent = details.totalAscent ? details.totalAscent: route.mapTrack.get_elevation_gain();
+    const duration = details.totalTimerTime !== details.totalElapsedTime ? `${durationString(details.totalTimerTime)} (${durationString(details.totalElapsedTime)})` : durationString(details.totalTimerTime)
 
     return `
             <h5>${details.trackName}</h4>
             <div class="row"><span class="icon">📅</span>${new Date(details.trackTimestamp).toLocaleString()}</div>
-            <div class="row"><span class="icon">🏔</span>${(details.totalDistance / 1000).toFixed(1)} km, ${details.totalAscent} hm</div>
-            <div class="row"><span class="icon">🕑</span>${durationString(details.totalTimerTime)} (${durationString(details.totalElapsedTime)})</div>
+            <div class="row"><span class="icon">🏔</span>${(details.totalDistance / 1000).toFixed(1)} km, ${ascent} hm</div>
+            <div class="row"><span class="icon">🕑</span>${duration}</div>
             <div class="row"><span class="icon">🏃</span>${averageSpeed(details.totalDistance, details.totalTimerTime)} km/h</div>
-            <div class="row"><span class="icon">🍔</span>${details.totalCalories} kcal</div>
+            ${caloriesMarkup}
             <div class="row"><span class="icon">${details.weather.weatherSymbol}</span>${details.weather.temperature}</div>
             `;
   }

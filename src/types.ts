@@ -24,7 +24,7 @@ export interface TrackListItem {
   totalDistance: number;
   totalAscent: number;
   totalDescent: number;
-  totalCalories: number;
+  totalCalories: number | null;
   totalElapsedTime: number;
   totalTimerTime: number;
   weather: Weatber;

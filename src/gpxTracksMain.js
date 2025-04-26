@@ -164,7 +164,9 @@ export class GpxTracksMain {
    * @param {TrackListItem} trackDetails
    */
   showElevationPanel(mapTrack, trackDetails) {
-    showElevation(mapTrack.get_elevation_data(), `↗ ${trackDetails.totalAscent}m ↘ ${trackDetails.totalDescent}m`);
+    const ascent = trackDetails.totalAscent ? trackDetails.totalAscent: mapTrack.get_elevation_gain();
+    const descent = trackDetails.totalDescent ? trackDetails.totalDescent: mapTrack.get_elevation_loss();
+    showElevation(mapTrack.get_elevation_data(), `↗ ${ascent}m ↘ ${descent}m`);
   }
 
   showAllTracks() {
