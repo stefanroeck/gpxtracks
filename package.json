@@ -21,7 +21,7 @@
     "globals": "^15.0.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.8.3",
-    "vite": "^6.2.5"
+    "vite": "^6.2.7"
   },
   "dependencies": {
     "echarts": "^5.5.0",
