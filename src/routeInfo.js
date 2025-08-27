@@ -1,5 +1,4 @@
 import L from "leaflet";
-import { Route } from "./types";
 import { averageSpeed, durationString } from "./utils";
 
 export class RouteInfoBox extends L.Control {

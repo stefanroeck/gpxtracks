@@ -11,7 +11,7 @@ import { renderGitHubIcon } from "./github";
 import { RouteInfoBox } from "./routeInfo";
 import { lineStyleHover, lineStyleNormal } from "./gpxPolylineOptions";
 import { fetchTrackList, fetchTracks, loadRoute } from "./backend";
-import { Route } from "./types";
+
 import { BACKEND_ENDPOINT } from "./backend";
 
 export class GpxTracksMain {

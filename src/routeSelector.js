@@ -1,6 +1,4 @@
 import * as L from "leaflet";
-import { Route } from "./types";
-
 const ALL_ROUTES = "all_routes";
 
 export class RouteSelector extends L.Control {
