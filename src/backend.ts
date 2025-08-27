@@ -63,10 +63,10 @@ export const loadRoute = async (url: string): Promise<L.GPX | undefined> => {
 
   const track = new L.GPX(gpxData, {
     async: true,
-    marker_options: {
-      startIconUrl: "",
-      endIconUrl: "",
-      shadowUrl: "",
+    // @ts-expect-error: GPXOptions type is outdated and does not include 'markers'
+    markers: {
+      startIcon: null,
+      endIcon: null,
     },
     polyline_options: lineStyleNormal,
   });
